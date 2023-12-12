@@ -8,7 +8,8 @@ import { useRequestProcessor } from '@/lib/requestProcessor'
 import axios from '@/lib/axios'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
-
+import { UseQueryResult } from 'react-query'
+ 
 type TableColumn = {
     header: string
     accessorKey: string
@@ -96,7 +97,7 @@ const Posts = () => {
                 '/posts', 
                 {
                     headers: {
-                        Authorization: `Bearer ${session.jwt}`
+                        Authorization: `Bearer ${session?.jwt}`
                     }
                 }
             )
@@ -108,9 +109,9 @@ const Posts = () => {
 
     const { query, getCategories } = useRequestProcessor()
 
-    const { data: posts, isLoading, isError } = query(
+    const { data: posts, isLoading, isError }: UseQueryResult<any | null> = query(
         'posts',
-        () => fetchData().then((res) => res.data.posts),
+        () => fetchData().then((res: any) => res.data.posts),
         { enabled: true }
     )
 
@@ -145,7 +146,7 @@ const Posts = () => {
     }
 
     if(posts) {
-        const postsWithHead = posts.map((post, i) => ({
+        const postsWithHead = posts.map((post: any, i: number) => ({
             ...post,
             head: {
                 title: post.title,

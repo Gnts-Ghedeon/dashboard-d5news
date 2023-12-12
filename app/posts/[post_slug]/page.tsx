@@ -9,7 +9,7 @@ import PostDetails from "@/components/forms/PostDetails"
 import { useState } from 'react'
 import { useRouter } from "next/navigation"
 
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient, UseQueryResult  } from 'react-query'
 import { useRequestProcessor } from '@/lib/requestProcessor'
 import axios from '@/lib/axios'
 import { useSession } from 'next-auth/react'
@@ -116,10 +116,10 @@ const SinglePost = ({ params }: SinglePostProps) => {
       const formElement = e.target as HTMLFormElement
       const formValues = Object.fromEntries(new FormData(formElement))
 
-      Object.values(formValues).map(formValue => {
+      Object.values(formValues).map((formValue: any) => {
         if(typeof formValue === "object") {
           
-          getPresignedUrl(formValue.name, "IMAGE").then(data => {
+          getPresignedUrl(formValue?.name, "IMAGE").then(data => {
             // console.log('url',data);
             // console.log('formValue',formValue);
             uploadImageToS3(data, formValue)
@@ -127,8 +127,9 @@ const SinglePost = ({ params }: SinglePostProps) => {
         }
       })
       
-      formValues.categories = JSON.parse(formValues.categories)
-      formValues.continents = []
+      // formValues.categories = JSON.parse(formValues.categories)
+      // formValues.categories = []
+      // formValues.continents = []
       if(postStatus) {
         formValues.status = postStatus
       }
@@ -143,20 +144,20 @@ const SinglePost = ({ params }: SinglePostProps) => {
                 '/posts/' + params.post_slug, 
                 {
                     headers: {
-                        Authorization: `Bearer ${session.jwt}`
+                        Authorization: `Bearer ${session?.jwt}`
                     }
                 }
             )
             return response
-        } catch (error) {
+        } catch (error: any) {
             console.error('err', error)
-            return error.response
+            return error?.response
         }
     }
 
     const { query } = useRequestProcessor()
 
-    const { data: post, isLoading, isError } = query(
+    const { data: post, isLoading, isError }: UseQueryResult<any | null> = query(
         'post',
         () => fetchData().then((res) => res.data.post),
         { enabled: true }
@@ -173,7 +174,10 @@ const SinglePost = ({ params }: SinglePostProps) => {
             <div className="col-span-12 lg:col-span-9">
               <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
                 <PostDetails 
-                  post={post}
+                  post={{
+                    title: post.title,
+                    content: post.content,
+                  }}
                 />
               </div>
               <MetaData 

@@ -8,7 +8,6 @@ const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const { data: session, update } = useSession()
-  console.log('session', session);
   
   let fullName = session?.firstname + ' ' + session?.lastname
   if (fullName.length > 12) {

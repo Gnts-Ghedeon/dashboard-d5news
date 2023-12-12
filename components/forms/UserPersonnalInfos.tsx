@@ -10,7 +10,7 @@ type User = {
 }
 
 type UserPersonnalInfosProps = {
-    user: User[];
+    user: any;
     session: any;
     action: string;
     isAdmin: boolean;
@@ -37,6 +37,7 @@ const UserPersonnalInfos = ({ user, session, action, isAdmin }: UserPersonnalInf
             "lastname": lastname,
             "firstname": firstname,
             "email": email,
+            "id": null
         }
         
         new_user.id = user.id
@@ -45,7 +46,7 @@ const UserPersonnalInfos = ({ user, session, action, isAdmin }: UserPersonnalInf
                 '/users', new_user, 
                 {
                     headers: {
-                        Authorization: `Bearer ${session.jwt}`
+                        Authorization: `Bearer ${session?.jwt}`
                     }
                 }
             )

@@ -6,7 +6,7 @@ export function useRequestProcessor() {
   const queryClient = useQueryClient()
   const { data: session } = useSession()
 
-  function query(key, queryFunction, options = {}) {
+  function query(key: any, queryFunction: any, options = {}) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useQuery({
       queryKey: key,
@@ -15,7 +15,7 @@ export function useRequestProcessor() {
     });
   }
 
-  function mutate(key, mutationFunction, options = {}) {
+  function mutate(key: any, mutationFunction: any, options = {}) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useMutation({
       mutationKey: key,
@@ -28,7 +28,7 @@ export function useRequestProcessor() {
   function fetchCategories() {
       return axios.get('/post-categories', {
           headers: {
-              Authorization: `Bearer ${session.jwt}`
+              Authorization: `Bearer ${session?.jwt}`
           }
       });
   }
@@ -37,7 +37,7 @@ export function useRequestProcessor() {
       try {
           const response = await fetchCategories();
           return response.data;
-      } catch (error) {
+      } catch (error: any) {
           console.error('Error fetching categories:', error);
           throw new Error(error.message);
       }

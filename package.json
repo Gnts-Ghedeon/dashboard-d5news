@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/core": "^0.18.5",
     "@ckeditor/ckeditor5-build-classic": "^40.1.0",
     "@ckeditor/ckeditor5-react": "^6.2.0",
     "@react-jvectormap/core": "^1.0.4",
@@ -38,5 +39,8 @@
     "react-query": "^3.39.3",
     "tailwindcss": "3.3.3",
     "typescript": "5.1.6"
+  },
+  "devDependencies": {
+    "@types/next-auth": "^3.15.0"
   }
 }

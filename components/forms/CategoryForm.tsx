@@ -7,10 +7,11 @@ import axios from '@/lib/axios'
 import { useSession } from 'next-auth/react'
 
 type CategoryFormProps = {
-    setModalIsOpen: void;
+    setModalIsOpen: (isOpen: boolean) => void;
+    category: any
 }
 
-const CategoryForm = ({ setModalIsOpen }) => {
+const CategoryForm = ({ setModalIsOpen, category }: CategoryFormProps) => {
     const { data: session } = useSession()
 
     const [nameValue, setNameValue] = useState<string>("")
@@ -18,10 +19,10 @@ const CategoryForm = ({ setModalIsOpen }) => {
 
     const queryClient = useQueryClient()
 
-    const createPostCategory = async (categoryData) => {
+    const createPostCategory = async (categoryData: any) => {
         const response = await axios.post('/admin/post-categories', categoryData, {
             headers: {
-                Authorization: `Bearer ${session.jwt}`,
+                Authorization: `Bearer ${session?.jwt}`,
             },
         })
         return response.data
@@ -36,12 +37,12 @@ const CategoryForm = ({ setModalIsOpen }) => {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const name = e.currentTarget.name.value
-        const description = e.currentTarget.description.value
+        const formElement = e.target as HTMLFormElement
+        const formValues = Object.fromEntries(new FormData(formElement))
 
         let category = {
-            name: name,
-            description: description,
+            name: formValues.name,
+            description: formValues.description,
         }
 
         mutate(category)

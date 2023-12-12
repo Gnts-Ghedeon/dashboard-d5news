@@ -24,12 +24,12 @@ const TableRowActions = ({ row, entity }: TableRowActionsProps) => {
     })
 
 
-    const deleteEntityInstance = async (row) => {
+    const deleteEntityInstance = async (row: any) => {
         const response = await axios.delete(
             `/${entity}/${row.id}`, 
             {
                 headers: {
-                    Authorization: `Bearer ${session.jwt}`
+                    Authorization: `Bearer ${session?.jwt}`
                 }
             }
         )
@@ -60,7 +60,7 @@ const TableRowActions = ({ row, entity }: TableRowActionsProps) => {
                                 <>
                                 <button
                                     className="px-8 py-3 flex items-center justify-center bg-graydark hover:opacity-80 gap-x-1.5 text-success"
-                                    onClick={() => handleUpdateCommentStatus(row)}
+                                    // onClick={() => handleUpdateCommentStatus(row)}
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5.5" viewBox="0 0 24 24" fill="none">
                                         <path d="M8.5 12.5L10.5 14.5L15.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

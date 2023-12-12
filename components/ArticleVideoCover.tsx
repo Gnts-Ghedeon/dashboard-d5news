@@ -4,11 +4,12 @@ import { ChangeEvent, useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 
 type ArticleVideoCoverProps = {
-    filename: string;
-    filetype: string; 
-    extension: string;
-    url: string;
-    relatedPost: string;
+    file: {
+        filename: string;
+        filetype: string;
+        url: string;
+        relatedPost: string;
+    }
 }
 
 const ArticleVideoCover = ({ file }: ArticleVideoCoverProps) => {

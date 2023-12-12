@@ -18,23 +18,23 @@ const MediasUpload = () => {
     const inputRef = useRef<HTMLInputElement>(null)
     const [selectedMedias, setSelectedMedias] = useState<Media[] | []>([])
     
-    const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files[0]
-        const fileURL = URL.createObjectURL(file)
-        const fileNameArr = file.name.split('.')
-        const extension = fileNameArr[fileNameArr.length - 1]
+    // const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    //     const file = event.target.files[0]
+    //     const fileURL = URL.createObjectURL(file)
+    //     const fileNameArr = file.name.split('.')
+    //     const extension = fileNameArr[fileNameArr.length - 1]
 
-        const media = {
-            id: "file_id",
-            url: fileURL,
-            name: file.name,
-            extension: extension,
-            type: getFileType(extension),
-            file: file,
-        }
+    //     const media = {
+    //         id: "file_id",
+    //         url: fileURL,
+    //         name: file.name,
+    //         extension: extension,
+    //         type: getFileType(extension),
+    //         file: file,
+    //     }
         
-        setSelectedMedias([...selectedMedias, media])
-    }
+    //     setSelectedMedias([...selectedMedias, media])
+    // }
 
     const handleClick = () => {
         if (inputRef.current) {
@@ -53,7 +53,7 @@ const MediasUpload = () => {
                     ref={inputRef}
                     type="file"
                     // accept=".jpg,.jpeg,.png"
-                    onChange={handleFileUpload}
+                    // onChange={handleFileUpload}
                     className="hidden"
                 />
                 <input type="hidden" />

@@ -20,10 +20,10 @@ const AddPost = () => {
     const { data: session } = useSession()
     const queryClient = useQueryClient()
 
-    const createPostCategory = async (formValues) => {
+    const createPostCategory = async (formValues: any) => {
         const response = await axios.post('/posts', formValues, {
             headers: {
-                Authorization: `Bearer ${session.jwt}`,
+                Authorization: `Bearer ${session?.jwt}`,
             },
         })
         
@@ -39,9 +39,10 @@ const AddPost = () => {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
-      let formValues = Object.fromEntries(new FormData(e.target))
-      formValues.categories = []
-      formValues.continents = []
+      const formElement = e.target as HTMLFormElement
+      const formValues = Object.fromEntries(new FormData(formElement))
+      // formValues.categories = []
+      // formValues.continents = []
       
       mutate(formValues)
     }
@@ -53,10 +54,17 @@ const AddPost = () => {
             <div className="col-span-12 lg:col-span-9">
               <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
                 <PostDetails 
-                  post={{}}
+                  post={{
+                    title: "",
+                    content: ""
+                  }}
                 />
               </div>
-              <MetaData metas={{}} />
+              <MetaData metas={{
+                metaTitle: "",
+                metaDescription: "",
+                metaKeywords: "",
+              }} />
             </div>
             <div className="col-span-12 lg:col-span-3 flex flex-col space-y-8"> 
               <div className="w-full flex flex-col gap-4">

@@ -21,7 +21,7 @@ const PostDetails = ({ post }: PostDetailsProps) => {
         setContentValue(post?.content)
     }, [post])
 
-    const imageUploadHandler = async (blobInfo, progress, failure) => {
+    const imageUploadHandler = async (blobInfo: any, progress: any, failure: any) => {
         const formData = new FormData();
         formData.append('file', blobInfo.blob());
         console.log('blob', blobInfo.blob());
@@ -83,7 +83,7 @@ const PostDetails = ({ post }: PostDetailsProps) => {
                             'alignright alignjustify | bullist numlist outdent indent | ' +
                             'removeformat | help',
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                        images_upload_handler: imageUploadHandler,
+                        // images_upload_handler: imageUploadHandler,
                         images_upload_url:"/upload"
                     }}
                     textareaName="content"

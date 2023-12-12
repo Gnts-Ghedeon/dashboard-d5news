@@ -1,13 +1,25 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import NextAuth from "next-auth";
+// import { SessionStrategy } from "next-auth/core/types"
 import axios from "@/lib/axios";
+
+type Credentials = {
+    email: string | undefined;
+    password: string | undefined;
+}
 
 export const authOptions = {
     providers: [
         CredentialsProvider({
             name: "credentials",
-            credentials: {},
-            async authorize(credentials, req) {
+            credentials: {
+                email: {},
+                password: {}
+            },
+            async authorize(credentials: Credentials | undefined, req) {
+                if (!credentials) {
+                    return null;
+                }
                 const { email, password } = credentials;
                 try {
                     const response = await axios.post("/auth/login", { email, password }, { withCredentials: true });
@@ -25,20 +37,22 @@ export const authOptions = {
     ],
     secret: process.env.NEXTAUTH_SECRET,
     session: {
-        strategy: "jwt"
+        strategy: 'jwt' as const
+        // strategy: 'jwt' as SessionStrategy
+        // strategy: SessionStrategy.JWT
     },
     pages: {
         signIn: "/signin"
     },
     callbacks: {
-        async jwt({ token, user, account }) {
+        async jwt({ token, user, account }: { token: any; user: any; account: any }) {
             
             if (user && account) {
                 return { ...token, ...user }
             }
             return token
         },
-        async session({ session, token }) {
+        async session({ session, token }: { session: any; token: any }) {
             return { ...session.user, ...token }
         }
     }
@@ -46,6 +60,6 @@ export const authOptions = {
 
 const authHandler = NextAuth(authOptions)
 
-export default async function handler(...params) {
+export default async function handler(...params: any) {
     await authHandler(...params)
 }

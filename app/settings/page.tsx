@@ -9,7 +9,13 @@ import { useRequestProcessor } from '@/lib/requestProcessor'
 import axios from '@/lib/axios'
 import { useSession } from 'next-auth/react'
 
-const Settings = ({ params }) => {
+import { UseQueryResult } from 'react-query'
+
+type SettingsProps = {
+  params: any
+}
+
+const Settings = ({ params }: SettingsProps) => {
   const { data: session } = useSession()
   
   const fetchData = async () => {
@@ -18,7 +24,7 @@ const Settings = ({ params }) => {
           '/users', 
           {
               headers: {
-                  Authorization: `Bearer ${session.jwt}`
+                  Authorization: `Bearer ${session?.jwt}`
               }
           }
       )
@@ -31,9 +37,9 @@ const Settings = ({ params }) => {
 
   const { query } = useRequestProcessor()
 
-  const { data: user, isLoading, isError } = query(
+  const { data: user, isLoading, isError }: UseQueryResult<any | null> = query(
     'user',
-    () => fetchData().then((res) => res.data.user),
+    () => fetchData().then((res: any) => res.data.user),
     { enabled: true }
   )
   

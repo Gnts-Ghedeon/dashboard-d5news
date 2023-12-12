@@ -152,7 +152,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* <!-- Menu Item Posts --> */}
               <SidebarLinkGroup
                 activeCondition={
-                  pathname === "/posts" || pathname.includes("posts")
+                  pathname === "/posts" || pathname?.includes("posts")
                 }
               >
                 {(handleClick, open) => {
@@ -162,7 +162,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         href="#"
                         className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
                           (pathname === "/posts" ||
-                            pathname.includes("posts")) &&
+                            pathname?.includes("posts")) &&
                           "bg-graydark dark:bg-meta-4"
                         }`}
                         onClick={(e) => {
@@ -273,7 +273,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* <!-- Menu Item Podcats --> */}
               <SidebarLinkGroup
                 activeCondition={
-                  pathname === "/podcasts" || pathname.includes("podcasts")
+                  pathname === "/podcasts" || pathname?.includes("podcasts")
                 }
               >
                 {(handleClick, open) => {
@@ -283,7 +283,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         href="#"
                         className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
                           (pathname === "/podcasts" ||
-                            pathname.includes("podcasts")) &&
+                            pathname?.includes("podcasts")) &&
                           "bg-graydark dark:bg-meta-4"
                         }`}
                         onClick={(e) => {
@@ -370,7 +370,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 <Link
                   href="/comments"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("/comments") && "bg-graydark dark:bg-meta-4"
+                    pathname?.includes("/comments") && "bg-graydark dark:bg-meta-4"
                   }`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" 
@@ -394,7 +394,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* <!-- Menu Item Users --> */}
               {/* <SidebarLinkGroup
                 activeCondition={
-                  pathname === "/users" || pathname.includes("users")
+                  pathname === "/users" || pathname?.includes("users")
                 }
               >
                 {(handleClick, open) => {
@@ -404,7 +404,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         href="#"
                         className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
                           (pathname === "/users" ||
-                            pathname.includes("users")) &&
+                            pathname?.includes("users")) &&
                           "bg-graydark dark:bg-meta-4"
                         }`}
                         onClick={(e) => {
@@ -480,7 +480,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 <Link
                   href="/settings"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("settings") &&
+                    pathname?.includes("settings") &&
                     "bg-graydark dark:bg-meta-4"
                   }`}
                 >
@@ -523,7 +523,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 <Link
                   href="/subscription"
                   className={`group relative flex items-center gap-1 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("subscription") &&
+                    pathname?.includes("subscription") &&
                     "bg-graydark dark:bg-meta-4"
                   }`}
                 >
@@ -543,7 +543,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 <Link
                   href="/paiements"
                   className={`group relative flex items-center gap-1 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("paiements") &&
+                    pathname?.includes("paiements") &&
                     "bg-graydark dark:bg-meta-4"
                   }`}
                 >
