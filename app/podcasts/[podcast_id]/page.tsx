@@ -52,7 +52,14 @@ const PodcastPage = () => {
                   </h2>
                 </div>
                 <div className="p-6.5">
-                  <ArticleCover />
+                  <ArticleCover
+                    file={{
+                      filename: "",
+                      filetype: "",
+                      url: "",
+                      relatedPost: ""
+                    }}
+                  />
                 </div>
               </div>
               <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
