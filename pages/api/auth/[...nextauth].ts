@@ -1,6 +1,5 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import NextAuth from "next-auth";
-// import { SessionStrategy } from "next-auth/core/types"
 import axios from "@/lib/axios";
 
 type Credentials = {
@@ -24,6 +23,8 @@ export const authOptions = {
                 try {
                     const response = await axios.post("/auth/login", { email, password }, { withCredentials: true });
 
+                    console.log('response', response);
+                    
                     if (response.data && response.data.statusCode === 201) {
                         return { ...response.data.user }
                     }
@@ -38,8 +39,6 @@ export const authOptions = {
     secret: process.env.NEXTAUTH_SECRET,
     session: {
         strategy: 'jwt' as const
-        // strategy: 'jwt' as SessionStrategy
-        // strategy: SessionStrategy.JWT
     },
     pages: {
         signIn: "/signin"
