@@ -19,7 +19,8 @@ const ArticleCover = ({ file }: ArticleCoverProps) => {
 
     useEffect(() => {
         setPreviewURL(file.url)
-    }, [file])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     
     const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files

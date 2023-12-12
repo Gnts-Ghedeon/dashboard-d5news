@@ -18,6 +18,10 @@ type SinglePostProps = {
   params: any
 }
 
+type Post = {
+
+}
+
 const SinglePost = ({ params }: SinglePostProps) => {
     const { data: session } = useSession()
     const queryClient = useQueryClient()
@@ -57,6 +61,8 @@ const SinglePost = ({ params }: SinglePostProps) => {
             },
         })
         
+        console.log('post res', response);
+        
         return response.data
     }
 
@@ -79,8 +85,6 @@ const SinglePost = ({ params }: SinglePostProps) => {
           }
         }
       )
-
-      console.log('url response', response);
       
       if(response.status === 201) {
         return response.data
@@ -88,51 +92,54 @@ const SinglePost = ({ params }: SinglePostProps) => {
     }
     
     const uploadImageToS3 = async (presignedUrl: string, imageFile: File) => {
-      console.log('imageFile', imageFile);
-      console.log('imageFile.type', imageFile.type);
-      console.log('presignedUrl', presignedUrl);
-      
-      
-      
       const response = await fetch(presignedUrl, {
         method: 'PUT',
         body: imageFile,
         headers: {
           'Content-Type': imageFile.type,
         },
-      });
-  
-      console.log('response', response);
+      })
       
       if (response.ok) {
         console.log('Image uploaded successfully');
       } else {
         console.error('Failed to upload image');
       }
+      return response
     }
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       const formElement = e.target as HTMLFormElement
-      const formValues = Object.fromEntries(new FormData(formElement))
+      const formData = new FormData(formElement)
+      const formValues: any = Object.fromEntries(formData)
 
-      Object.values(formValues).map((formValue: any) => {
-        if(typeof formValue === "object") {
-          
-          getPresignedUrl(formValue?.name, "IMAGE").then(data => {
-            // console.log('url',data);
-            // console.log('formValue',formValue);
-            uploadImageToS3(data, formValue)
-          })
-        }
-      })
-      
-      // formValues.categories = JSON.parse(formValues.categories)
-      // formValues.categories = []
-      // formValues.continents = []
+      formValues.categories = JSON.parse(formValues.categories as string)
+      formValues.continents = []
       if(postStatus) {
         formValues.status = postStatus
       }
+
+      Object.entries(formValues).map((formValue: any, key: string) => {
+        if(formValue && typeof formValue === "object" && ["coverImage"].includes(formValue[0])) {
+          getPresignedUrl(formValue[1].name, "IMAGE").then(data => {
+            
+            uploadImageToS3(data, formValue).then((response: any) => {
+              if(response.ok) {
+                formValues.media = [
+                  {
+                    name: formValue[1].name,
+                    url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValue[1].name,
+                    type: "IMAGE"
+                  }
+                ]
+                delete formValues.coverImage
+                mutateUpdatePost(formValues)
+              }
+            })
+          })
+        }
+      })
       
       // mutateUpdatePost(formValues)
     }

@@ -40,9 +40,15 @@ const AddPost = () => {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       const formElement = e.target as HTMLFormElement
-      const formValues = Object.fromEntries(new FormData(formElement))
-      // formValues.categories = []
-      // formValues.continents = []
+      const formData = new FormData(formElement)
+      const formValues: any = Object.fromEntries(formData)
+
+      console.log('before', formValues);
+      
+      formValues.categories = JSON.parse(formValues.categories as string)
+      formValues.continents = []
+
+      console.log('after', formValues);
       
       mutate(formValues)
     }

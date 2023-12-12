@@ -22,8 +22,6 @@ export const authOptions = {
                 const { email, password } = credentials;
                 try {
                     const response = await axios.post("/auth/login", { email, password }, { withCredentials: true });
-
-                    console.log('response', response);
                     
                     if (response.data && response.data.statusCode === 201) {
                         return { ...response.data.user }
