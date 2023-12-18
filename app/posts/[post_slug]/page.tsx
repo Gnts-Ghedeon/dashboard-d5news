@@ -86,7 +86,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
       formValues.continents = []
       formValues.media = []
       if(postStatus) {
-        formValues.status = postStatus
+        formValues.status = postStatus 
       }
       
       delete formValues.cover
