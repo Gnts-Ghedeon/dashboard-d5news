@@ -2,6 +2,10 @@
 
 import { ChangeEvent, useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
+import axios from '@/lib/axios'
+import { useSession } from 'next-auth/react'
+import { uploadImageToS3, getPresignedUrl } from '@/utils/uploadMedia'
+import { getFileType } from '@/utils/utilities'
 
 type ArticleCoverProps = {
     file: {
@@ -9,6 +13,7 @@ type ArticleCoverProps = {
         filetype: string;
         url: string;
         relatedPost: string;
+        postId: string;
     }
 }
 
@@ -16,6 +21,9 @@ const ArticleCover = ({ file }: ArticleCoverProps) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [previewURL, setPreviewURL] = useState<string | null>(null)
+    const [type, setType] = useState<string>(getFileType(file?.filename || "IMAGE"))
+
+    const { data: session } = useSession()
 
     useEffect(() => {
         setPreviewURL(file.url)
@@ -29,6 +37,7 @@ const ArticleCover = ({ file }: ArticleCoverProps) => {
             setSelectedFile(selected)
             const imageURL = URL.createObjectURL(selected)
             setPreviewURL(imageURL)
+            setType(getFileType(selected.name))
         }
     }
 
@@ -37,13 +46,63 @@ const ArticleCover = ({ file }: ArticleCoverProps) => {
             inputRef.current.click()
         }
     }   
+
+
+    const sendMedia = async (media: any) => {
+        const response = await axios.patch('/posts/updateCoverMedia/' + file.relatedPost, 
+            { media: media, postId: file.postId }, 
+            {
+                headers: {
+                    Authorization: `Bearer ${session?.jwt}`,
+                },
+            }
+        )
+        console.log('response', response);
+        
+        return response.data
+    }
+
+    const handleSave = () => {
+        if(selectedFile) {
+            getPresignedUrl(selectedFile.name, getFileType(selectedFile.name), session?.jwt).then(data => {
+                uploadImageToS3(data, selectedFile).then((response: any) => {
+                    sendMedia({
+                        name: selectedFile.name,
+                        url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + selectedFile.name,
+                        type: getFileType(selectedFile.name),
+                        isCover: true
+                    })
+                    .then(data => {
+                        console.log('data', data)
+                    })
+                })
+            })
+        } 
+        else if(!previewURL && file.url !== "") {
+            sendMedia(null)
+            .then(data => {
+                console.log('data', data)
+            })
+        }
+        else {
+            sendMedia({
+                name: file.filename,
+                url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + file.filename,
+                type: getFileType(file.filename),
+                isCover: true
+            })
+            .then(data => {
+                console.log('data', data)
+            })
+        }
+    }
     return (
         <>
             <input
                 ref={inputRef}
                 type="file"
-                name="coverImage"
-                accept=".jpg,.jpeg,.png"
+                name="cover"
+                accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.wmv,.avi,.avchd,.flv,.f4v,.swf,.mkv,.webm,.mpeg-2"
                 onChange={handleFileUpload}
                 className="hidden"
             />
@@ -51,14 +110,31 @@ const ArticleCover = ({ file }: ArticleCoverProps) => {
                 previewURL 
                 ? (
                     <div className="relative h-52 group w-full">
-                        <Image 
-                            src={previewURL}
-                            fill
-                            alt="Image description"
-                            className="object-cover"
-                        />
+                        {
+                            type === "IMAGE"
+                            ? (
+                                <Image 
+                                    src={previewURL}
+                                    fill
+                                    alt="Image description"
+                                    className="object-cover"
+                                />
+                            )
+                            : (
+                                <video 
+                                    className="w-full h-full"   
+                                    src={previewURL}
+                                    controls
+                                />
+                            )
+                        }
                         <div className="hidden group-hover:block absolute w-full bottom-0 bg-black">
-                            <button className="px-4 py-2 text-center w-full text-sm text-danger" onClick={() => setPreviewURL("")}>Supprimer</button>
+                            <button 
+                                type="button"
+                                 className="px-4 py-2 text-center w-full text-sm text-danger" onClick={() => setPreviewURL(null)}
+                            >
+                                Supprimer
+                            </button>
                         </div>
                     </div>
                 )
@@ -102,6 +178,15 @@ const ArticleCover = ({ file }: ArticleCoverProps) => {
                     </div>
                 )
             }
+            <div className="flex justify-end gap-4.5 mt-4">
+                <button
+                    className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                    type="button"
+                    onClick={handleSave}
+                >
+                    Enregistrer
+                </button>
+            </div>
         </>
     )
 }

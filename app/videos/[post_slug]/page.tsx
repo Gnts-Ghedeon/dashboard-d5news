@@ -92,7 +92,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
       delete formValues.cover
       delete formValues.audioPodcast
 
-      console.log('content', formValues.content);
+      // console.log('postMedia', postMedia);
       
       // Object.entries(formValues).map((formValue: [string, any], key: number) => {
       //   if(formValue && typeof formValue === "object" && ["coverImage", "videoCover", "audioPodcast"].includes(formValue[0])) {
@@ -119,7 +119,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
       //   }
       // })
       
-      // mutateUpdatePost(formValues)
+      mutateUpdatePost(formValues)
     }
     // 
 

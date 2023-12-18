@@ -84,11 +84,11 @@ const AddPost = () => {
               <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
                 <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                   <h2 className="text-xl font-semibold text-black dark:text-white">
-                    Image de couverture
+                    Video de couverture
                   </h2>
                 </div>
                 <div className="p-6.5">
-                  {"Veuillez enregistrer l'article avant d'ajouter une image de couverture"}
+                  {"Veuillez enregistrer l'article avant d'ajouter une video de couverture"}
                   {/* <ArticleCover
                     file={{
                       filename: "",
@@ -100,23 +100,6 @@ const AddPost = () => {
                 </div>
               </div>
               {/* <MediasUpload /> */}
-              {/* <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
-                <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-                  <h2 className="text-xl font-semibold text-black dark:text-white">
-                    Vidéo de couverture
-                  </h2>
-                </div>
-                <div className="p-6.5">
-                  <ArticleVideoCover 
-                    file={{
-                      filename: "",
-                      filetype: "",
-                      url: "",
-                      relatedPost: ""
-                    }}
-                  />
-                </div>
-              </div> */}
               <PostCategories
                 cats={[]}
               />

@@ -2,7 +2,7 @@
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb"
 import DataTable from "@/components/Tables/DataTable"
-import { formatDate, getStatus } from '@/utils/utilities'
+import { formatDate, getStatus, renderPostCategories } from '@/utils/utilities'
 
 import { useRequestProcessor } from '@/lib/requestProcessor'
 import axios from '@/lib/axios'
@@ -137,20 +137,14 @@ const Posts = () => {
     //     })
     // }, [catsSetted, getCategories])
 
-    const renderPostCategories = (categories: any[]) => {
-        if (Array.isArray(categories) && categories.length > 0) {
-            return categories.map(category => category.name).join(', ')
-        } else {
-            return ''
-        }
-    }
+    
 
     if(posts) {
         const postsWithHead = posts.map((post: any, i: number) => ({
             ...post,
             head: {
                 title: post.title,
-                coverUrl: `/images/cover/cover-01.png`,
+                coverUrl: post.media[0]?.url || `/images/cover/cover-01.png`,
                 url: `posts/${post.slug}`
             },
             index: i + 1,

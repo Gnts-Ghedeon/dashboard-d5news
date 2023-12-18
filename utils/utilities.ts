@@ -78,17 +78,24 @@ export const getStatus = (status: string) => {
     }
 }
 
-export const getFileType = (extension: string) => {
-    if(["png", "jpg", "jpeg"].includes(extension)) {
-        return "image"
+export const getFileType = (filename: string) => {
+    const filenameArr = filename.split('.')
+    const extension = filenameArr[filenameArr.length - 1]
+    if(["png", "jpg", "jpeg", "webp"].includes(extension)) {
+        return "IMAGE"
     }
-    else if(["mp4", "mkv"].includes(extension)) {
-        return "video"
+    else if(["mp4","mov","wmv","avi","avchd","flv","f4v","swf","mkv","webm","mpeg-2"].includes(extension)) {
+        return "VIDEO"
     }
-    else if(["mp3"].includes(extension)) {
-        return "audio"
+    else if(["mp3","wav","aac","flac","aiff","ogg","wma","alac","pcm","dsd","midi","mp4","ape","m4a"].includes(extension)) {
+        return "AUDIO"
     }
-    else {
-        return "unknown"
+}
+
+export const renderPostCategories = (categories: any[]) => {
+    if (Array.isArray(categories) && categories.length > 0) {
+        return categories.map(category => category.name).join(', ')
+    } else {
+        return ''
     }
 }

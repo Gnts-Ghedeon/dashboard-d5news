@@ -88,7 +88,7 @@ let filters: Filter[] = [
     }
 ]
 
-const Podcasts = () => {
+const Posts = () => {
     const { data: session } = useSession()
 
     const fetchData = async () => {
@@ -109,18 +109,19 @@ const Podcasts = () => {
 
     const { query, getCategories } = useRequestProcessor()
 
-    const { data: podcasts, isLoading, isError }: UseQueryResult<any | null> = query(
-        'podcasts',
+    const { data: posts, isLoading, isError }: UseQueryResult<any | null> = query(
+        'posts',
         () => fetchData().then((res: any) => res.data.posts),
         { enabled: true }
     )
-    if(podcasts) {
-        const podcastsWithHead = podcasts.map((post: any, i: number) => ({
+
+    if(posts) {
+        const postsWithHead = posts.map((post: any, i: number) => ({
             ...post,
             head: {
                 title: post.title,
                 coverUrl: post.media[0]?.url || `/images/cover/cover-01.png`,
-                url: `podcasts/${post.slug}`
+                url: `posts/${post.slug}`
             },
             index: i + 1,
             createdAt: formatDate(post.createdAt),
@@ -130,15 +131,15 @@ const Podcasts = () => {
         }))
         return (
             <>
-                <Breadcrumb pageName="Tous les podcasts" />
+                <Breadcrumb pageName="Tous les vidéos" />
             
                 <div className="flex flex-col gap-10">
                     <DataTable 
-                        data={podcastsWithHead} 
+                        data={postsWithHead} 
                         columns={columns} 
                         filters={filters} 
+                        entity="posts"
                         searchAttributes={["author", "head"]} 
-                        entity="podcasts"
                     />
                 </div>
             </>
@@ -148,4 +149,4 @@ const Podcasts = () => {
     if (isError) return <p>Error :</p>;
 }
 
-export default Podcasts
+export default Posts

@@ -2,6 +2,10 @@
 
 import { ChangeEvent, useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
+import axios from '@/lib/axios'
+import { useSession } from 'next-auth/react'
+import { uploadImageToS3, getPresignedUrl } from '@/utils/uploadMedia'
+import { getFileType } from '@/utils/utilities'
 
 type PodcastAudioFileProps = {
     file: {
@@ -9,6 +13,7 @@ type PodcastAudioFileProps = {
         filetype: string;
         url: string;
         relatedPost: string;
+        postId: string;
     }
 }
 
@@ -16,18 +21,21 @@ const PodcastAudioFile = ({ file }: PodcastAudioFileProps) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [previewURL, setPreviewURL] = useState<string | null>(null)
+
+    const { data: session } = useSession()
     
     useEffect(() => {
         setPreviewURL(file.url)
-    }, [file])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files
         if (files && files.length > 0) {
             const selected = files[0]
             setSelectedFile(selected)
-            const imageURL = URL.createObjectURL(selected)
-            setPreviewURL(imageURL)
+            const audioURL = URL.createObjectURL(selected)
+            setPreviewURL(audioURL)
         }
     }
 
@@ -36,6 +44,54 @@ const PodcastAudioFile = ({ file }: PodcastAudioFileProps) => {
             inputRef.current.click()
         }
     }   
+
+    const sendMedia = async (media: any) => {
+        const response = await axios.patch('/posts/updatePodcastMedia/' + file.relatedPost, 
+            { media: media, postId: file.postId }, 
+            {
+                headers: {
+                    Authorization: `Bearer ${session?.jwt}`,
+                },
+            }
+        )
+        console.log('response', response);
+        
+        return response.data
+    }
+
+    const handleSave = () => {
+        if(selectedFile) {
+            getPresignedUrl(selectedFile.name, getFileType(selectedFile.name), session?.jwt).then(data => {
+                uploadImageToS3(data, selectedFile).then((response: any) => {
+                    sendMedia({
+                        name: selectedFile.name,
+                        url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + selectedFile.name,
+                        type: getFileType(selectedFile.name)
+                    })
+                    .then(data => {
+                        console.log('data', data)
+                    })
+                })
+            })
+        } 
+        else if(!previewURL && file.url !== "") {
+            sendMedia(null)
+            .then(data => {
+                console.log('data', data)
+            })
+        }
+        else {
+            sendMedia({
+                name: file.filename,
+                url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + file.filename,
+                type: getFileType(file.filename),
+                isCover: true
+            })
+            .then(data => {
+                console.log('data', data)
+            })
+        }
+    }
     return (
         <>
             <input
@@ -56,7 +112,10 @@ const PodcastAudioFile = ({ file }: PodcastAudioFileProps) => {
                             controls
                         />
                         <div className="hidden group-hover:block absolute w-full bottom-0 bg-black">
-                            <button className="px-4 py-2 text-center w-full text-sm text-danger" onClick={() => setPreviewURL("")}>Supprimer</button>
+                            <button 
+                                className="px-4 py-2 text-center w-full text-sm text-danger" 
+                                onClick={() => setPreviewURL(null)}
+                            >Supprimer</button>
                         </div>
                     </div>
                 )
@@ -98,6 +157,15 @@ const PodcastAudioFile = ({ file }: PodcastAudioFileProps) => {
                     </div>
                 )
             }
+            <div className="flex justify-end gap-4.5 mt-4">
+                <button
+                    className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                    type="button"
+                    onClick={handleSave}
+                >
+                    Enregistrer
+                </button>
+            </div>
         </>
     )
 }

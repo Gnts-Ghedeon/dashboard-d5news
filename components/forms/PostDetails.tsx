@@ -9,42 +9,51 @@ type PostDetailsProps = {
     post: {
         title: string;
         content: string;
-    }
+    },
+    setPostMedia: void
 }
 
-const PostDetails = ({ post }: PostDetailsProps) => {
+type SelectedMedia = {
+    key: string;
+    file: File;
+}
+
+const PostDetails = ({ post, setPostMedia }: PostDetailsProps) => {
     const [titleValue, setTitleValue] = useState<string>("")
     const [contentValue, setContentValue] = useState<string>("")
+    const [selectedMedias, setSelectedMedias] = useState<SelectedMedia[]>([])
 
     useEffect(() => {
         setTitleValue(post?.title)
         setContentValue(post?.content)
-    }, [post])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const imageUploadHandler = async (blobInfo: any, progress: any, failure: any) => {
-        const formData = new FormData();
-        formData.append('file', blobInfo.blob());
-        console.log('blob', blobInfo.blob());
-        console.log('filename', blobInfo.filename());
-        
-    
-        const response = await axios.post('/upload', formData);
-    
-        console.log('response', response);
-        
-        // if (response.status === 200) {
-        //   const image = {
-        //     id: response.data.id,
-        //     src: response.data.src,
-        //   }
-        // }
+        const imageURL = URL.createObjectURL(blobInfo.blob())
+        setSelectedMedias([...selectedMedias, { key: imageURL, file: blobInfo.blob() }])
+        return imageURL
     }
 
-    const removeBase64 = (content: string) => {
-        const imageExtension = "(jpeg|png|jpg|gif)"
-        const regex = new RegExp(/<img src="data:image\/(.*?);base64,(.*?)(">?)/g)
-        return content.replace(regex, "")
+    const handleEditorChange = (newValue, editor) => {
+        let allImagesSources = []
+        setContentValue(newValue)
+
+        const regex = /<img[^>]*src="([^"]*)"[^>]*>/g
+        let match
+        while ((match = regex.exec(newValue))) {
+            allImagesSources.push(match[1])
+        }
+
+        // Check for unused media
+        const usedMediaKeys = new Set(allImagesSources)
+        const updatedSelectedMedias = selectedMedias.filter((media) => usedMediaKeys.has(media.key))
+
+        // Update selected medias state
+        setSelectedMedias(updatedSelectedMedias)
+        // setPostMedia(selectedMedias)
     }
+
     return (
         <div className="flex flex-col gap-5.5 p-6.5">
             <div>
@@ -83,16 +92,11 @@ const PostDetails = ({ post }: PostDetailsProps) => {
                             'alignright alignjustify | bullist numlist outdent indent | ' +
                             'removeformat | help',
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                        // images_upload_handler: imageUploadHandler,
+                        images_upload_handler: imageUploadHandler,
                         images_upload_url:"/upload"
                     }}
                     textareaName="content"
-                    onEditorChange={(newValue, editor) => {
-                        // setContentValue(removeBase64(newValue)),
-                        setContentValue(newValue),
-                        console.log('content', newValue);
-                        
-                    }}
+                    onEditorChange={handleEditorChange}
                 />
             </div>
         </div>

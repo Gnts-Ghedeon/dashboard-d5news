@@ -18,7 +18,7 @@ import { useRequestProcessor } from '@/lib/requestProcessor'
 import axios from '@/lib/axios'
 import { useSession } from 'next-auth/react'
 
-type SinglePostProps = {
+type SinglePodcastProps = {
   params: any
 }
 
@@ -26,7 +26,7 @@ type Post = {
 
 }
 
-const SinglePost = ({ params }: SinglePostProps) => {
+const SinglePodcast = ({ params }: SinglePodcastProps) => {
     const { data: session } = useSession()
     const queryClient = useQueryClient()
     const router = useRouter()
@@ -92,7 +92,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
       delete formValues.cover
       delete formValues.audioPodcast
 
-      console.log('content', formValues.content);
+      // console.log('postMedia', postMedia);
       
       // Object.entries(formValues).map((formValue: [string, any], key: number) => {
       //   if(formValue && typeof formValue === "object" && ["coverImage", "videoCover", "audioPodcast"].includes(formValue[0])) {
@@ -119,7 +119,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
       //   }
       // })
       
-      // mutateUpdatePost(formValues)
+      mutateUpdatePost(formValues)
     }
     // 
 
@@ -155,7 +155,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
       const audio = post.media.find(media => media.type === "AUDIO")
       return (
         <>
-          <Breadcrumb pageName="Modifier l'article" />
+          <Breadcrumb pageName="Modifier le podcast" />
 
           <form onSubmit={handleSubmit}  className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
             <div className="col-span-12 lg:col-span-9">
@@ -184,7 +184,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
                       type="submit"
                       onClick={() => setPostStatus("PENDING")}
                     >
-                      {"Publier l'article"}
+                      {"Publier le podcast"}
                     </button>
                   )
                 }
@@ -208,13 +208,13 @@ const SinglePost = ({ params }: SinglePostProps) => {
                   type="button"
                   onClick={() => handleDelete(post.id)}
                 >
-                  {"Supprimer l'article"}
+                  {"Supprimer le podcast"}
                 </button>
               </div>
               <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
                 <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                   <h2 className="text-xl font-semibold text-black dark:text-white">
-                    {"Couverture de l'article"}
+                    {"Couverture du podcast"}
                   </h2>
                 </div>
                 <div className="p-6.5">
@@ -223,6 +223,24 @@ const SinglePost = ({ params }: SinglePostProps) => {
                       filename: cover?.name,
                       filetype: cover?.type,
                       url: cover?.url,
+                      relatedPost: post.slug,
+                      postId: post.id
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
+                <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                  <h2 className="text-xl font-semibold text-black dark:text-white">
+                    Fichier audio
+                  </h2>
+                </div>
+                <div className="p-6.5">
+                  <PodcastAudioFile 
+                    file={{
+                      filename: audio?.name,
+                      filetype: audio?.type,
+                      url: audio?.url,
                       relatedPost: post.slug,
                       postId: post.id
                     }}
@@ -242,4 +260,4 @@ const SinglePost = ({ params }: SinglePostProps) => {
     }
 }
 
-export default SinglePost
+export default SinglePodcast
