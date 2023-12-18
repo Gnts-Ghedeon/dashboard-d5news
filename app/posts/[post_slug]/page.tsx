@@ -214,7 +214,25 @@ const SinglePost = ({ params }: SinglePostProps) => {
               <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
                 <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                   <h2 className="text-xl font-semibold text-black dark:text-white">
-                    {"Couverture de l'article"}
+                    {"Image de couverture"}
+                  </h2>
+                </div>
+                <div className="p-6.5">
+                  <ArticleCover
+                    file={{
+                      filename: cover?.name,
+                      filetype: cover?.type,
+                      url: cover?.url,
+                      relatedPost: post.slug,
+                      postId: post.id
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
+                <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                  <h2 className="text-xl font-semibold text-black dark:text-white">
+                    {"Video"}
                   </h2>
                 </div>
                 <div className="p-6.5">
