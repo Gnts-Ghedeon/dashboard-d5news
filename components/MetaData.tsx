@@ -4,33 +4,33 @@ import { useState } from 'react'
 
 type MetaDataProps = {
     metas: {
-        metaTitle: string;
-        metaDescription: string;
-        metaKeywords: string;
+        metaTitle: string | null | undefined;
+        metaDescription: string | null | undefined;
+        metaKeywords: string | null | undefined;
     }
 }
 
 const MetaData = ({ metas }: MetaDataProps) => {
     console.log('metas', metas);
-    
+
     const [showContent, setShowContent] = useState<boolean>(true)
     const [metaDescriptionValue, setMetaDescriptionValue] = useState<string>(metas?.metaDescription || "")
     const [metaTitleValue, setMetaTitleValue] = useState<string>(metas?.metaTitle || "")
     const [metaKeywordsValue, setMetaKeywordsValue] = useState<string>(metas?.metaKeywords || "")
-    
+
     return (
         <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark mt-8 mb-4">
             <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-black dark:text-white">
                     Métadonnées
                 </h2>
-                <button 
+                <button
                     type="button"
                     className=""
                     onClick={() => setShowContent(!showContent)}
                 >
                     <svg className={(showContent ? "rotate-180 " : "") + "h-8 transform "} viewBox="0 0 1792 1792" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1395 736q0 13-10 23l-466 466q-10 10-23 10t-23-10l-466-466q-10-10-10-23t10-23l50-50q10-10 23-10t23 10l393 393 393-393q10-10 23-10t23 10l50 50q10 10 10 23z"/>
+                        <path d="M1395 736q0 13-10 23l-466 466q-10 10-23 10t-23-10l-466-466q-10-10-10-23t10-23l50-50q10-10 23-10t23 10l393 393 393-393q10-10 23-10t23 10l50 50q10 10 10 23z" />
                     </svg>
                 </button>
             </div>

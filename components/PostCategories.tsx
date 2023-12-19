@@ -3,18 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRequestProcessor } from '@/lib/requestProcessor'
 
-type PostCategory = {
-    id: string;
-    slug: string;
-    name: string;
-    description: string;
-}
-
-type PostCategoriesProps = {
-    cats: PostCategory[]
-}
-
-const PostCategories = ({ cats }: PostCategoriesProps) => {
+const PostCategories = ({ cats }: { cats: PostCategory[] }) => {
     const [showContent, setShowContent] = useState<boolean>(false)
     const [categories, setCategories] = useState<PostCategory[]>([])
     const [categoriesIDs, setCategoriesIDs] = useState<string[]>([])
@@ -27,14 +16,14 @@ const PostCategories = ({ cats }: PostCategoriesProps) => {
     const { getCategories } = useRequestProcessor()
     useEffect(() => {
         getCategories()
-        .then((res) => {
-            setAllCategories(res.categories)
-        })
+            .then((res) => {
+                setAllCategories(res.categories)
+            })
         const initialCategoryIDs = cats.map(cat => cat.id)
         setCategoriesIDs(initialCategoryIDs)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-    
+
     const handleRemoveCategory = (category: PostCategory) => {
         const updatedCategories = categories.filter(existingCategory => existingCategory.id !== category.id)
         setCategories(updatedCategories)
@@ -44,7 +33,7 @@ const PostCategories = ({ cats }: PostCategoriesProps) => {
 
     const handleSelectCategory = (category: PostCategory) => {
         const isCategoryExist = categories.some(existingCategory => existingCategory.id === category.id)
-      
+
         if (!isCategoryExist) {
             setCategories([...categories, category])
             setCategoriesIDs([...categoriesIDs, category.id])
@@ -56,22 +45,22 @@ const PostCategories = ({ cats }: PostCategoriesProps) => {
                 <h2 className="text-xl font-semibold text-black dark:text-white">
                     Catégories
                 </h2>
-                <button 
+                <button
                     type="button"
                     className=""
                     onClick={() => setShowContent(!showContent)}
                 >
                     <svg className={(showContent ? "rotate-180 " : "") + "h-8 transform "} viewBox="0 0 1792 1792" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1395 736q0 13-10 23l-466 466q-10 10-23 10t-23-10l-466-466q-10-10-10-23t10-23l50-50q10-10 23-10t23 10l393 393 393-393q10-10 23-10t23 10l50 50q10 10 10 23z"/>
+                        <path d="M1395 736q0 13-10 23l-466 466q-10 10-23 10t-23-10l-466-466q-10-10-10-23t10-23l50-50q10-10 23-10t23 10l393 393 393-393q10-10 23-10t23 10l50 50q10 10 10 23z" />
                     </svg>
                 </button>
             </div>
             <div className="py-4 px-6.5 flex flex-wrap gap-2 border-b border-stroke dark:border-strokedark">
                 {
-                    showContent && allCategories.length > 0 && 
+                    showContent && allCategories.length > 0 &&
                     allCategories.map((category: PostCategory, index: number) => {
                         return (
-                            <button 
+                            <button
                                 key={index}
                                 type="button"
                                 onClick={() => handleSelectCategory(category)}
@@ -86,19 +75,19 @@ const PostCategories = ({ cats }: PostCategoriesProps) => {
                     <div className="py-4 px-6.5">
                         <p>Catégories sélectionées</p>
                         <div className="flex flex-wrap gap-2 mt-3">
-                        {
-                            categories.length > 0 && 
-                            categories.map((category: PostCategory, index: number) => {
-                                return (
-                                    <button 
-                                        key={index}
-                                        type="button"
-                                        onClick={() => handleRemoveCategory(category)}
-                                        className="px-6 py-2 rounded bg-black"
-                                    >{category.name}</button>
-                                )
-                            })
-                        }
+                            {
+                                categories.length > 0 &&
+                                categories.map((category: PostCategory, index: number) => {
+                                    return (
+                                        <button
+                                            key={index}
+                                            type="button"
+                                            onClick={() => handleRemoveCategory(category)}
+                                            className="px-6 py-2 rounded bg-black"
+                                        >{category.name}</button>
+                                    )
+                                })
+                            }
                         </div>
                     </div>
                 )

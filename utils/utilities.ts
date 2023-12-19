@@ -31,10 +31,10 @@ export const useOutsideClick = (ref: React.RefObject<any>, callback: () => void)
             callback()
         }
     }
-  
+
     useEffect(() => {
         document.addEventListener('click', handleClick)
-    
+
         return () => {
             document.removeEventListener('click', handleClick)
         }
@@ -81,14 +81,18 @@ export const getStatus = (status: string) => {
 export const getFileType = (filename: string) => {
     const filenameArr = filename.split('.')
     const extension = filenameArr[filenameArr.length - 1]
-    if(["png", "jpg", "jpeg", "webp"].includes(extension)) {
+    if (["png", "jpg", "jpeg", "webp"].includes(extension)) {
         return "IMAGE"
     }
-    else if(["mp4","mov","wmv","avi","avchd","flv","f4v","swf","mkv","webm","mpeg-2"].includes(extension)) {
+    else if (["mp4", "mov", "wmv", "avi", "avchd", "flv", "f4v", "swf", "mkv", "webm", "mpeg-2"].includes(extension)) {
         return "VIDEO"
     }
-    else if(["mp3","wav","aac","flac","aiff","ogg","wma","alac","pcm","dsd","midi","mp4","ape","m4a"].includes(extension)) {
+    else if (["mp3", "wav", "aac", "flac", "aiff", "ogg", "wma", "alac", "pcm", "dsd", "midi", "mp4", "ape", "m4a"].includes(extension)) {
         return "AUDIO"
+    }
+
+    else {
+        return "IMAGE"
     }
 }
 

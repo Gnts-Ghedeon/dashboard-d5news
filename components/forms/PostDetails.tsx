@@ -1,16 +1,13 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { Editor } from "@tinymce/tinymce-react"
-import axios from 'axios'
-
+import { useState } from 'react'
+import QuillComponent from '../QuillComponent/QuillComponent';
+import { LexicalEditor } from 'lexical';
+import LexicalEditorComponent from '../QuillComponent/QuillComponent';
 
 type PostDetailsProps = {
-    post: {
-        title: string;
-        content: string;
-    },
-    setPostMedia: void
+    post: Post | null,
+    setPostMedia: (medias: any[]) => void;
 }
 
 type SelectedMedia = {
@@ -19,40 +16,7 @@ type SelectedMedia = {
 }
 
 const PostDetails = ({ post, setPostMedia }: PostDetailsProps) => {
-    const [titleValue, setTitleValue] = useState<string>("")
-    const [contentValue, setContentValue] = useState<string>("")
-    const [selectedMedias, setSelectedMedias] = useState<SelectedMedia[]>([])
-
-    useEffect(() => {
-        setTitleValue(post?.title)
-        setContentValue(post?.content)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    const imageUploadHandler = async (blobInfo: any, progress: any, failure: any) => {
-        const imageURL = URL.createObjectURL(blobInfo.blob())
-        setSelectedMedias([...selectedMedias, { key: imageURL, file: blobInfo.blob() }])
-        return imageURL
-    }
-
-    const handleEditorChange = (newValue, editor) => {
-        let allImagesSources = []
-        setContentValue(newValue)
-
-        const regex = /<img[^>]*src="([^"]*)"[^>]*>/g
-        let match
-        while ((match = regex.exec(newValue))) {
-            allImagesSources.push(match[1])
-        }
-
-        // Check for unused media
-        const usedMediaKeys = new Set(allImagesSources)
-        const updatedSelectedMedias = selectedMedias.filter((media) => usedMediaKeys.has(media.key))
-
-        // Update selected medias state
-        setSelectedMedias(updatedSelectedMedias)
-        // setPostMedia(selectedMedias)
-    }
+    const [titleValue, setTitleValue] = useState<string>(post?.title ?? "")
 
     return (
         <div className="flex flex-col gap-5.5 p-6.5">
@@ -73,31 +37,7 @@ const PostDetails = ({ post, setPostMedia }: PostDetailsProps) => {
                 <label className="mb-3 block text-black dark:text-white">
                     Contenu
                 </label>
-                <Editor
-                    apiKey="gl87curmda8pcaaf405vxag18xxr63deqfkcbma0ynean5wn"
-                    value={contentValue}
-                    init={{
-                        language: "fr_FR",
-                        height: 500,
-                        branding: false,
-                        image_advtab: true,
-                        menubar: true,
-                        plugins: [
-                            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
-                            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                            'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
-                        ],
-                        toolbar: 'undo redo | blocks | ' +
-                            'bold italic forecolor | alignleft aligncenter ' +
-                            'alignright alignjustify | bullist numlist outdent indent | ' +
-                            'removeformat | help',
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                        images_upload_handler: imageUploadHandler,
-                        images_upload_url:"/upload"
-                    }}
-                    textareaName="content"
-                    onEditorChange={handleEditorChange}
-                />
+                <QuillComponent post={post} />
             </div>
         </div>
     )

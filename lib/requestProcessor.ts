@@ -26,21 +26,21 @@ export function useRequestProcessor() {
   }
 
   function fetchCategories() {
-      return axios.get('/post-categories', {
-          headers: {
-              Authorization: `Bearer ${session?.jwt}`
-          }
-      });
+    return axios.get('/post-categories', {
+      headers: {
+        Authorization: `Bearer ${session?.jwt}`
+      }
+    });
   }
 
   const getCategories = async () => {
-      try {
-          const response = await fetchCategories();
-          return response.data;
-      } catch (error: any) {
-          console.error('Error fetching categories:', error);
-          throw new Error(error.message);
-      }
+    try {
+      const response = await fetchCategories();
+      return response.data;
+    } catch (error: any) {
+      console.error('Error fetching categories:', error);
+      throw new Error(error.message);
+    }
   };
 
   return { query, mutate, getCategories };

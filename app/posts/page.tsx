@@ -9,7 +9,7 @@ import axios from '@/lib/axios'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { UseQueryResult } from 'react-query'
- 
+
 type TableColumn = {
     header: string
     accessorKey: string
@@ -93,53 +93,34 @@ const Posts = () => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(
-                '/posts', 
-                {
-                    headers: {
-                        Authorization: `Bearer ${session?.jwt}`
-                    }
-                }
-            )
-            return response
+            const response = await axios.get('/posts', {
+                headers: {
+                    Authorization: `Bearer ${session?.jwt}`,
+                },
+            });
+
+            return response.data as {
+                statusCode: number;
+                posts: Post[];
+                message: string;
+            };
         } catch (error) {
-            console.error('err', error)
+            console.error('err', error);
+            throw error; // Re-throw the error to maintain consistency in error handling
         }
-    }
+    };
 
-    const { query, getCategories } = useRequestProcessor()
+    const { query, getCategories } = useRequestProcessor();
 
-    const { data: posts, isLoading, isError }: UseQueryResult<any | null> = query(
+    const { data, isLoading, isError } = query(
         'posts',
-        () => fetchData().then((res: any) => res.data.posts),
+        () => fetchData().then((res) => res.posts),
         { enabled: true }
-    )
+    );
 
-    // const [catsSetted, setCatsSetted] = useState<boolean>(false)
-    // useEffect(() => {
-    //     if(catsSetted) return
-    //     getCategories().then((res) => {
-    //         setCatsSetted(true)
-    //         let categories = res.categories.map((cat: any) => {
-    //             return {
-    //                 label: cat.name,
-    //                 value: cat.id
-    //             }
-    //         })
-    //         const categoriesFilter: Filter = {
-    //             label: "Categories",
-    //             name: "category",
-    //             placeholder: "Selectionner une categorie",
-    //             options: categories
-    //         }
-            
-    //         filters.push(categoriesFilter)
-    //     })
-    // }, [catsSetted, getCategories])
+    const posts = data as Post[];
 
-    
-
-    if(posts) {
+    if (posts) {
         const postsWithHead = posts.map((post: any, i: number) => ({
             ...post,
             head: {
@@ -156,14 +137,14 @@ const Posts = () => {
         return (
             <>
                 <Breadcrumb pageName="Tous les articles" />
-            
+
                 <div className="flex flex-col gap-10">
-                    <DataTable 
-                        data={postsWithHead} 
-                        columns={columns} 
-                        filters={filters} 
+                    <DataTable
+                        data={postsWithHead}
+                        columns={columns}
+                        filters={filters}
                         entity="posts"
-                        searchAttributes={["author", "head"]} 
+                        searchAttributes={["author", "head"]}
                     />
                 </div>
             </>
