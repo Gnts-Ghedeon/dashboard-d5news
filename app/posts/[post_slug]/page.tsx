@@ -100,6 +100,17 @@ const SinglePost = ({ params }: SinglePostProps) => {
       })
     })
 
+    getPresignedUrl(formValues.coverVideo.name, getFileType(formValues.coverVideo.name), session?.jwt ?? "").then(data => {
+      uploadImageToS3(data, formValues.coverVideo).then((response: any) => {
+          console.log({
+              name: formValues.coverVideo.name,
+              url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverVideo.name,
+              type: getFileType(formValues.coverVideo.name),
+              isCover: getFileType(formValues.coverVideo.name) === "IMAGE"
+          })
+      })
+    })
+
     console.log('formValues', formValues);
 
     // Object.entries(formValues).map((formValue: [string, any], key: number) => {

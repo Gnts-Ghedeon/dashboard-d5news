@@ -34,7 +34,7 @@ async function extractBlobAndCreateFile(imageElement: HTMLImageElement, extensio
 
     // Create File
     const id = uuidv4();
-    const file = new File([blobData], id + + '.' + extension, { type: blobData.type });
+    const file = new File([blobData], id + '.' + extension, { type: blobData.type });
     console.log("Here is my file")
     console.log(file)
     return file;
@@ -45,7 +45,7 @@ async function extractBlobAndCreateFile(imageElement: HTMLImageElement, extensio
 }
 
 
-const QuillEditorComponent = ({ post }: { post: Post | null }) => {
+const QuillEditorComponent = ({ post, setPostMedia }: { post: Post | null, setPostMedia: (medias: any[]) => void; }) => {
   const [contentValue, setContentValue] = useState<string>(post?.content || "")
   const [uploadedImages, setUploadedImages] = useState<any[]>([]);
   const { quill, quillRef, Quill } = useQuill({
@@ -85,10 +85,11 @@ const QuillEditorComponent = ({ post }: { post: Post | null }) => {
           }
         });
 
-        let file;
+        let file: File | null;
         if (imageElement) {
           extractBlobAndCreateFile(imageElement, extension).then((res) => {
             file = res;
+            setPostMedia((prev: (File | null)[]) => [...prev, file])
             console.log("file")
             console.log(file)
           })

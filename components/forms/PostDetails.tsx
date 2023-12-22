@@ -2,8 +2,6 @@
 
 import { useState } from 'react'
 import QuillComponent from '../QuillComponent/QuillComponent';
-import { LexicalEditor } from 'lexical';
-import LexicalEditorComponent from '../QuillComponent/QuillComponent';
 
 type PostDetailsProps = {
     post: Post | null,
@@ -37,7 +35,7 @@ const PostDetails = ({ post, setPostMedia }: PostDetailsProps) => {
                 <label className="mb-3 block text-black dark:text-white">
                     Contenu
                 </label>
-                <QuillComponent post={post} />
+                <QuillComponent post={post} setPostMedia={setPostMedia} />
             </div>
         </div>
     )
