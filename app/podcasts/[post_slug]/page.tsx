@@ -154,7 +154,7 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
 
         <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
           <div className="col-span-12 lg:col-span-9">
-            <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
+            <div className="overflow-hidden rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
               <PostDetails
                 post={post}
                 setPostMedia={setPostMedia}

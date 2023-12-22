@@ -39,7 +39,7 @@ export function useRequestProcessor() {
       return response.data;
     } catch (error: any) {
       console.error('Error fetching categories:', error);
-      throw new Error(error.message);
+      // throw new Error(error.message);
     }
   };
 

@@ -11,8 +11,6 @@ type MetaDataProps = {
 }
 
 const MetaData = ({ metas }: MetaDataProps) => {
-    console.log('metas', metas);
-
     const [showContent, setShowContent] = useState<boolean>(true)
     const [metaDescriptionValue, setMetaDescriptionValue] = useState<string>(metas?.metaDescription || "")
     const [metaTitleValue, setMetaTitleValue] = useState<string>(metas?.metaTitle || "")

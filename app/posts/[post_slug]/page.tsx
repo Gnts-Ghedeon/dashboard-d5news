@@ -13,6 +13,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import { useRequestProcessor } from '@/lib/requestProcessor'
 import axios from '@/lib/axios'
 import { useSession } from 'next-auth/react'
+import { toast } from 'react-toastify'
 
 type SinglePostProps = {
   params: any
@@ -57,7 +58,12 @@ const SinglePost = ({ params }: SinglePostProps) => {
         Authorization: `Bearer ${session?.jwt}`,
       },
     })
-    console.log('post res', response);
+    if(response.status === 200) {
+      toast.success("Modifications enregistrées avec succès!")
+    } 
+    else {
+      toast.error("Oops, une erreur s'est produite. Veuillez réessayer!")
+    }
     return response.data
   }
 
@@ -84,7 +90,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
     delete formValues.cover
     delete formValues.audioPodcast
 
-    console.log('content', formValues.content);
+    console.log('formValues', formValues);
 
     // Object.entries(formValues).map((formValue: [string, any], key: number) => {
     //   if(formValue && typeof formValue === "object" && ["coverImage", "videoCover", "audioPodcast"].includes(formValue[0])) {
@@ -111,7 +117,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
     //   }
     // })
 
-    // mutateUpdatePost(formValues)
+    mutateUpdatePost(formValues)
   }
   // 
 
@@ -142,20 +148,24 @@ const SinglePost = ({ params }: SinglePostProps) => {
 
   const post = data as Post
 
-  console.log('my post', post)
-
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error :</p>;
   if (post) {
     const cover = post.media.find((media: { isCover: boolean; }) => media.isCover === true)
+    const coverMedia = post?.media.find((media: any) => media?.isCover && media.url)
     const audio = post.media.find((media: { type: string; }) => media.type === "AUDIO")
+
+    // console.log('coverMedia', coverMedia);
+    // console.log('cover', cover);
+    // console.log('post', post);
+    
     return (
       <>
         <Breadcrumb pageName="Modifier l'article" />
 
         <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
           <div className="col-span-12 lg:col-span-9">
-            <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
+            <div className="overflow-hidden rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
               <PostDetails
                 post={post}
                 setPostMedia={setPostMedia}

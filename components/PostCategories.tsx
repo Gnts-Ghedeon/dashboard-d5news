@@ -17,7 +17,7 @@ const PostCategories = ({ cats }: { cats: PostCategory[] }) => {
     useEffect(() => {
         getCategories()
             .then((res) => {
-                setAllCategories(res.categories)
+                setAllCategories(res?.categories)
             })
         const initialCategoryIDs = cats.map(cat => cat.id)
         setCategoriesIDs(initialCategoryIDs)

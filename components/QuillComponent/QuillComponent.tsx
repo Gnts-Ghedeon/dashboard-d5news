@@ -46,6 +46,7 @@ async function extractBlobAndCreateFile(imageElement: HTMLImageElement, extensio
 
 
 const QuillEditorComponent = ({ post }: { post: Post | null }) => {
+  const [contentValue, setContentValue] = useState<string>(post?.content || "")
   const [uploadedImages, setUploadedImages] = useState<any[]>([]);
   const { quill, quillRef, Quill } = useQuill({
     modules: { blotFormatter: {} }
@@ -57,18 +58,19 @@ const QuillEditorComponent = ({ post }: { post: Post | null }) => {
 
   useEffect(() => {
     if (quill) {
+      quill.clipboard.dangerouslyPasteHTML(post?.content || "")
       quill.on('text-change', (delta, oldContents) => {
-        console.log('Text change!');
-        console.log(delta);
-
+        setContentValue(quill.root.innerHTML)
+        // console.log('inner HTML', quill.root.innerHTML);
+    
         const newImages = delta.ops?.filter((op) => op.insert && op.insert.image)
           .map((op) => op.insert.image);
 
         console.log("newImages")
         let extension = null
         if (newImages) {
-          const mediaType = newImages[0].split(';')[0];
-          extension = mediaType.split('/')[1];
+          const mediaType = newImages[0]?.split(';')[0];
+          extension = mediaType?.split('/')[1];
         }
 
         let imageElement = null
@@ -93,12 +95,15 @@ const QuillEditorComponent = ({ post }: { post: Post | null }) => {
         }
       });
     }
-  }, [quill, Quill]);
+  }, [quill, Quill, post]);
 
   return (
-    <div className='bg-white text-black'>
-      <div ref={quillRef} />
-    </div>
+    <>
+      <div className='bg-white text-black h-96 pb-[42px]'>
+        <div ref={quillRef} />
+      </div>
+      <input type="hidden" name="content" value={contentValue} />
+    </>
   )
 };
 

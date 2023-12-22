@@ -7,6 +7,9 @@ import { usePathname } from 'next/navigation'
 import { SessionProvider } from "next-auth/react"
 import Loader from "@/components/common/Loader";
 
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -68,6 +71,7 @@ export default function RootLayout({
               </div>
             )}
           </div>
+          <ToastContainer />
         </SessionProvider>
         </QueryClientProvider>
       </body>
