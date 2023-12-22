@@ -45,9 +45,8 @@ async function extractBlobAndCreateFile(imageElement: HTMLImageElement, extensio
 }
 
 
-const QuillEditorComponent = ({ post, setPostMedia }: { post: Post | null, setPostMedia: (medias: any[]) => void; }) => {
+const QuillEditorComponent = ({ post, addMediaToPostMediaFiles }: { post: Post | null, addMediaToPostMediaFiles: (file: File) => void; }) => {
   const [contentValue, setContentValue] = useState<string>(post?.content || "")
-  const [uploadedImages, setUploadedImages] = useState<any[]>([]);
   const { quill, quillRef, Quill } = useQuill({
     modules: { blotFormatter: {} }
   });
@@ -61,8 +60,7 @@ const QuillEditorComponent = ({ post, setPostMedia }: { post: Post | null, setPo
       quill.clipboard.dangerouslyPasteHTML(post?.content || "")
       quill.on('text-change', (delta, oldContents) => {
         setContentValue(quill.root.innerHTML)
-        // console.log('inner HTML', quill.root.innerHTML);
-    
+
         const newImages = delta.ops?.filter((op) => op.insert && op.insert.image)
           .map((op) => op.insert.image);
 
@@ -89,9 +87,11 @@ const QuillEditorComponent = ({ post, setPostMedia }: { post: Post | null, setPo
         if (imageElement) {
           extractBlobAndCreateFile(imageElement, extension).then((res) => {
             file = res;
-            setPostMedia((prev: (File | null)[]) => [...prev, file])
-            console.log("file")
-            console.log(file)
+            if (file) {
+              addMediaToPostMediaFiles(file)
+              console.log("File added to post media files")
+            }
+
           })
         }
       });

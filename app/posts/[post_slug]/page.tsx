@@ -25,8 +25,15 @@ const SinglePost = ({ params }: SinglePostProps) => {
   const { data: session } = useSession()
   const queryClient = useQueryClient()
   const router = useRouter()
-  const [postMedia, setPostMedia] = useState<Media[]>([])
+  const [postMediaFiles, setPostMediaFiles] = useState<File[]>([])
   const [postStatus, setPostStatus] = useState<string | null>(null)
+
+  const addMediaToPostMediaFiles = (file: File) => {
+    setPostMediaFiles([...postMediaFiles, file])
+  }
+  const removeMediaFromPostMediaFiles = (file: File) => {
+    setPostMediaFiles(postMediaFiles.filter((mediaFile) => mediaFile !== file))
+  }
 
   // delete post
   const deletePost = async (post_id: string) => {
@@ -60,9 +67,9 @@ const SinglePost = ({ params }: SinglePostProps) => {
         Authorization: `Bearer ${session?.jwt}`,
       },
     })
-    if(response.status === 200) {
+    if (response.status === 200) {
       toast.success("Modifications enregistrées avec succès!")
-    } 
+    }
     else {
       toast.error("Oops, une erreur s'est produite. Veuillez réessayer!")
     }
@@ -91,23 +98,23 @@ const SinglePost = ({ params }: SinglePostProps) => {
 
     getPresignedUrl(formValues.coverImage.name, getFileType(formValues.coverImage.name), session?.jwt ?? "").then(data => {
       uploadImageToS3(data, formValues.coverImage).then((response: any) => {
-          console.log({
-              name: formValues.coverImage.name,
-              url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverImage.name,
-              type: getFileType(formValues.coverImage.name),
-              isCover: getFileType(formValues.coverImage.name) === "IMAGE"
-          })
+        console.log({
+          name: formValues.coverImage.name,
+          url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverImage.name,
+          type: getFileType(formValues.coverImage.name),
+          isCover: getFileType(formValues.coverImage.name) === "IMAGE"
+        })
       })
     })
 
     getPresignedUrl(formValues.coverVideo.name, getFileType(formValues.coverVideo.name), session?.jwt ?? "").then(data => {
       uploadImageToS3(data, formValues.coverVideo).then((response: any) => {
-          console.log({
-              name: formValues.coverVideo.name,
-              url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverVideo.name,
-              type: getFileType(formValues.coverVideo.name),
-              isCover: getFileType(formValues.coverVideo.name) === "IMAGE"
-          })
+        console.log({
+          name: formValues.coverVideo.name,
+          url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverVideo.name,
+          type: getFileType(formValues.coverVideo.name),
+          isCover: getFileType(formValues.coverVideo.name) === "IMAGE"
+        })
       })
     })
 
@@ -173,9 +180,9 @@ const SinglePost = ({ params }: SinglePostProps) => {
   if (post) {
     const coverImage = post?.media.find((media: any) => media?.isCover && media.url)
     console.log('post?.media', post?.media);
-    
+
     const videoMedia = post?.media.find((media: { type: string; }) => media.type === "VIDEO")
-    
+
     return (
       <>
         <Breadcrumb pageName="Modifier l'article" />
@@ -185,7 +192,8 @@ const SinglePost = ({ params }: SinglePostProps) => {
             <div className="overflow-hidden rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
               <PostDetails
                 post={post}
-                setPostMedia={setPostMedia}
+                addMediaToPostMediaFiles={addMediaToPostMediaFiles}
+                removeMediaFromPostMediaFiles={removeMediaFromPostMediaFiles}
               />
             </div>
             <MetaData
@@ -246,7 +254,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
                     relatedPost: post.slug,
                     postId: post.id
                   }}
-                  accept=".jpg,.jpeg,.png,.webp," 
+                  accept=".jpg,.jpeg,.png,.webp,"
                   name="coverImage"
                 />
               </div>

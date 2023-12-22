@@ -5,7 +5,8 @@ import QuillComponent from '../QuillComponent/QuillComponent';
 
 type PostDetailsProps = {
     post: Post | null,
-    setPostMedia: (medias: any[]) => void;
+    removeMediaFromPostMediaFiles: (file: File) => void;
+    addMediaToPostMediaFiles: (file: File) => void;
 }
 
 type SelectedMedia = {
@@ -13,7 +14,7 @@ type SelectedMedia = {
     file: File;
 }
 
-const PostDetails = ({ post, setPostMedia }: PostDetailsProps) => {
+const PostDetails = ({ post, addMediaToPostMediaFiles, removeMediaFromPostMediaFiles }: PostDetailsProps) => {
     const [titleValue, setTitleValue] = useState<string>(post?.title ?? "")
 
     return (
@@ -35,7 +36,7 @@ const PostDetails = ({ post, setPostMedia }: PostDetailsProps) => {
                 <label className="mb-3 block text-black dark:text-white">
                     Contenu
                 </label>
-                <QuillComponent post={post} setPostMedia={setPostMedia} />
+                <QuillComponent post={post} addMediaToPostMediaFiles={addMediaToPostMediaFiles} />
             </div>
         </div>
     )
