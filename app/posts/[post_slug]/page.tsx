@@ -14,6 +14,8 @@ import { useRequestProcessor } from '@/lib/requestProcessor'
 import axios from '@/lib/axios'
 import { useSession } from 'next-auth/react'
 import { toast } from 'react-toastify'
+import { getPresignedUrl, uploadImageToS3 } from "@/utils/uploadMedia";
+import { getFileType } from "@/utils/utilities";
 
 type SinglePostProps = {
   params: any
@@ -87,8 +89,16 @@ const SinglePost = ({ params }: SinglePostProps) => {
       formValues.status = postStatus
     }
 
-    delete formValues.cover
-    delete formValues.audioPodcast
+    getPresignedUrl(formValues.coverImage.name, getFileType(formValues.coverImage.name), session?.jwt ?? "").then(data => {
+      uploadImageToS3(data, formValues.coverImage).then((response: any) => {
+          console.log({
+              name: formValues.coverImage.name,
+              url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverImage.name,
+              type: getFileType(formValues.coverImage.name),
+              isCover: getFileType(formValues.coverImage.name) === "IMAGE"
+          })
+      })
+    })
 
     console.log('formValues', formValues);
 
@@ -117,9 +127,8 @@ const SinglePost = ({ params }: SinglePostProps) => {
     //   }
     // })
 
-    mutateUpdatePost(formValues)
+    // mutateUpdatePost(formValues)
   }
-  // 
 
   const fetchData = async () => {
     try {
@@ -151,13 +160,10 @@ const SinglePost = ({ params }: SinglePostProps) => {
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error :</p>;
   if (post) {
-    const cover = post.media.find((media: { isCover: boolean; }) => media.isCover === true)
-    const coverMedia = post?.media.find((media: any) => media?.isCover && media.url)
-    const audio = post.media.find((media: { type: string; }) => media.type === "AUDIO")
-
-    // console.log('coverMedia', coverMedia);
-    // console.log('cover', cover);
-    // console.log('post', post);
+    const coverImage = post?.media.find((media: any) => media?.isCover && media.url)
+    console.log('post?.media', post?.media);
+    
+    const videoMedia = post?.media.find((media: { type: string; }) => media.type === "VIDEO")
     
     return (
       <>
@@ -223,12 +229,14 @@ const SinglePost = ({ params }: SinglePostProps) => {
               <div className="p-6.5">
                 <ArticleCover
                   file={{
-                    filename: cover?.name ?? "",
-                    filetype: cover?.type ?? "",
-                    url: cover?.url ?? "",
+                    filename: coverImage?.name ?? "",
+                    filetype: coverImage?.type ?? "",
+                    url: coverImage?.url ?? "",
                     relatedPost: post.slug,
                     postId: post.id
                   }}
+                  accept=".jpg,.jpeg,.png,.webp," 
+                  name="coverImage"
                 />
               </div>
             </div>
@@ -241,12 +249,14 @@ const SinglePost = ({ params }: SinglePostProps) => {
               <div className="p-6.5">
                 <ArticleCover
                   file={{
-                    filename: cover?.name ?? "",
-                    filetype: cover?.type ?? "",
-                    url: cover?.url ?? "",
+                    filename: videoMedia?.name ?? "",
+                    filetype: videoMedia?.type ?? "",
+                    url: videoMedia?.url ?? "",
                     relatedPost: post.slug,
                     postId: post.id
                   }}
+                  accept=".mp4,.mov,.wmv,.avi,.avchd,.flv,.f4v,.swf,.mkv,.webm,.mpeg-2"
+                  name="coverVideo"
                 />
               </div>
             </div>

@@ -6,6 +6,7 @@ import axios from '@/lib/axios'
 import { useSession } from 'next-auth/react'
 import { uploadImageToS3, getPresignedUrl } from '@/utils/uploadMedia'
 import { getFileType } from '@/utils/utilities'
+import { toast } from 'react-toastify'
 
 type ArticleCoverProps = {
     file: {
@@ -15,9 +16,11 @@ type ArticleCoverProps = {
         relatedPost: string;
         postId: string;
     }
+    accept: string
+    name: string
 }
 
-const ArticleCover = ({ file }: ArticleCoverProps) => {
+const ArticleCover = ({ file, accept, name }: ArticleCoverProps) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [previewURL, setPreviewURL] = useState<string | null>(null)
@@ -57,8 +60,9 @@ const ArticleCover = ({ file }: ArticleCoverProps) => {
                 },
             }
         )
-        console.log('response', response);
-
+        if(response.status === 200) {
+            toast.success("Cover mis à jour avec success!")
+        }
         return response.data
     }
 
@@ -70,19 +74,13 @@ const ArticleCover = ({ file }: ArticleCoverProps) => {
                         name: selectedFile.name,
                         url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + selectedFile.name,
                         type: getFileType(selectedFile.name),
-                        isCover: true
+                        isCover: getFileType(selectedFile.name) === "IMAGE"
                     })
-                        .then(data => {
-                            console.log('data', data)
-                        })
                 })
             })
         }
         else if (!previewURL && file.url !== "") {
             sendMedia(null)
-                .then(data => {
-                    console.log('data', data)
-                })
         }
         else {
             sendMedia({
@@ -91,9 +89,6 @@ const ArticleCover = ({ file }: ArticleCoverProps) => {
                 type: getFileType(file.filename),
                 isCover: true
             })
-                .then(data => {
-                    console.log('data', data)
-                })
         }
     }
     return (
@@ -101,8 +96,8 @@ const ArticleCover = ({ file }: ArticleCoverProps) => {
             <input
                 ref={inputRef}
                 type="file"
-                name="cover"
-                accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.wmv,.avi,.avchd,.flv,.f4v,.swf,.mkv,.webm,.mpeg-2"
+                name={name}
+                accept={accept}
                 onChange={handleFileUpload}
                 className="hidden"
             />
@@ -182,7 +177,7 @@ const ArticleCover = ({ file }: ArticleCoverProps) => {
                 <button
                     className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
                     type="button"
-                    onClick={handleSave}
+                    // onClick={handleSave}
                 >
                     Enregistrer
                 </button>

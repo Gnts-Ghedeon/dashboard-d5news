@@ -218,6 +218,7 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
                     relatedPost: post.slug,
                     postId: post.id
                   }}
+                  accept=".jpg,.jpeg,.png,.webp," name="coverImage"
                 />
               </div>
             </div>

@@ -226,6 +226,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
                       relatedPost: post.slug,
                       postId: post.id
                     }}
+                    accept=".jpg,.jpeg,.png,.webp,"
                   />
                 </div>
               </div>
