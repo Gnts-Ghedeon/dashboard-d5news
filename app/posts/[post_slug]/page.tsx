@@ -28,9 +28,10 @@ const SinglePost = ({ params }: SinglePostProps) => {
   const [postMediaFiles, setPostMediaFiles] = useState<File[]>([])
   const [postStatus, setPostStatus] = useState<string | null>(null)
 
-  const addMediaToPostMediaFiles = (file: File) => {
-    setPostMediaFiles([...postMediaFiles, file])
+  const addMediaToPostMediaFiles = (file: File) => {    
+    setPostMediaFiles((prev) => [...prev, file])
   }
+  
   const removeMediaFromPostMediaFiles = (file: File) => {
     setPostMediaFiles(postMediaFiles.filter((mediaFile) => mediaFile !== file))
   }
@@ -83,7 +84,17 @@ const SinglePost = ({ params }: SinglePostProps) => {
     },
   })
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const uploadMediaFiles = async () => {
+    const promises = postMediaFiles.map(async (file) => {
+      const fileType = getFileType(file.name)
+      const response = await getPresignedUrl(file.name, fileType, session?.jwt ?? "")
+      await uploadImageToS3(response, file)
+    })
+    await Promise.all(promises)
+    console.log("Done!")
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formElement = e.target as HTMLFormElement
     const formData = new FormData(formElement)
@@ -96,29 +107,35 @@ const SinglePost = ({ params }: SinglePostProps) => {
       formValues.status = postStatus
     }
 
-    getPresignedUrl(formValues.coverImage.name, getFileType(formValues.coverImage.name), session?.jwt ?? "").then(data => {
-      uploadImageToS3(data, formValues.coverImage).then((response: any) => {
-        console.log({
-          name: formValues.coverImage.name,
-          url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverImage.name,
-          type: getFileType(formValues.coverImage.name),
-          isCover: getFileType(formValues.coverImage.name) === "IMAGE"
-        })
-      })
-    })
+    // getPresignedUrl(formValues.coverImage.name, getFileType(formValues.coverImage.name), session?.jwt ?? "").then(data => {
+    //   uploadImageToS3(data, formValues.coverImage).then((response: any) => {
+    //     console.log({
+    //       name: formValues.coverImage.name,
+    //       url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverImage.name,
+    //       type: getFileType(formValues.coverImage.name),
+    //       isCover: getFileType(formValues.coverImage.name) === "IMAGE"
+    //     })
+    //   })
+    // })
 
-    getPresignedUrl(formValues.coverVideo.name, getFileType(formValues.coverVideo.name), session?.jwt ?? "").then(data => {
-      uploadImageToS3(data, formValues.coverVideo).then((response: any) => {
-        console.log({
-          name: formValues.coverVideo.name,
-          url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverVideo.name,
-          type: getFileType(formValues.coverVideo.name),
-          isCover: getFileType(formValues.coverVideo.name) === "IMAGE"
-        })
-      })
-    })
+    // getPresignedUrl(formValues.coverVideo.name, getFileType(formValues.coverVideo.name), session?.jwt ?? "").then(data => {
+    //   uploadImageToS3(data, formValues.coverVideo).then((response: any) => {
+    //     console.log({
+    //       name: formValues.coverVideo.name,
+    //       url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverVideo.name,
+    //       type: getFileType(formValues.coverVideo.name),
+    //       isCover: getFileType(formValues.coverVideo.name) === "IMAGE"
+    //     })
+    //   })
+    // })
 
-    console.log('formValues', formValues);
+    await uploadMediaFiles().then(() => {
+      console.log('files', postMediaFiles);
+    
+      console.log('formValues', formValues);
+      // console.log('content', formValues.content);
+      // mutateUpdatePost(formValues)
+    })
 
     // Object.entries(formValues).map((formValue: [string, any], key: number) => {
     //   if(formValue && typeof formValue === "object" && ["coverImage", "videoCover", "audioPodcast"].includes(formValue[0])) {
@@ -179,8 +196,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
   if (isError) return <p>Error :</p>;
   if (post) {
     const coverImage = post?.media.find((media: any) => media?.isCover && media.url)
-    console.log('post?.media', post?.media);
-
+    
     const videoMedia = post?.media.find((media: { type: string; }) => media.type === "VIDEO")
 
     return (
