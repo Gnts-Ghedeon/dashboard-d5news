@@ -60,10 +60,9 @@ const AddPost = () => {
             <div className="col-span-12 lg:col-span-9">
               <div className="overflow-hidden rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
                 <PostDetails 
-                  post={{
-                    title: "",
-                    content: ""
-                  }}
+                  post={null}
+                  addMediaToPostMediaFiles={() => {}}
+                  removeMediaFromPostMediaFiles={() => {}}
                 />
               </div>
               <MetaData metas={{

@@ -25,6 +25,7 @@ const PodcastAudioFile = ({ file }: PodcastAudioFileProps) => {
     const { data: session } = useSession()
 
     useEffect(() => {
+        
         setPreviewURL(file.url)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -54,7 +55,6 @@ const PodcastAudioFile = ({ file }: PodcastAudioFileProps) => {
                 },
             }
         )
-        console.log('response', response);
 
         return response.data
     }
@@ -97,11 +97,11 @@ const PodcastAudioFile = ({ file }: PodcastAudioFileProps) => {
             <input
                 ref={inputRef}
                 type="file"
-                accept=".mp3,.wav,.aac,.flac,.aiff,.ogg,.wma,.alac,.pcm,.dsd,.midi,.mp4,.ape,.m4a"
+                name="audioPodcast"
+                accept=".mp3,.wav,.aac,.flac,.aiff,.ogg,.wma,.alac,.pcm,.dsd,.midi,.ape,.m4a"
                 onChange={handleFileUpload}
                 className="hidden"
             />
-            <input type="hidden" name="" />
             {
                 previewURL
                     ? (
@@ -157,7 +157,7 @@ const PodcastAudioFile = ({ file }: PodcastAudioFileProps) => {
                         </div>
                     )
             }
-            <div className="flex justify-end gap-4.5 mt-4">
+            {/* <div className="flex justify-end gap-4.5 mt-4">
                 <button
                     className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
                     type="button"
@@ -165,7 +165,7 @@ const PodcastAudioFile = ({ file }: PodcastAudioFileProps) => {
                 >
                     Enregistrer
                 </button>
-            </div>
+            </div> */}
         </>
     )
 }

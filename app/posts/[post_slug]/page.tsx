@@ -52,8 +52,12 @@ const SinglePost = ({ params }: SinglePostProps) => {
   const { mutate: handleDeletePost } = useMutation(deletePost, {
     onSuccess: () => {
       queryClient.invalidateQueries('post')
+      toast.success("Post supprimé avec succès!")
       return router.push('/posts')
     },
+    onError: () => {
+      toast.error("Oops, une erreur s'est produite. Veuillez réessayer!")
+    }
   })
 
   const handleDelete = (post_id: string) => {
@@ -85,13 +89,20 @@ const SinglePost = ({ params }: SinglePostProps) => {
   })
 
   const uploadMediaFiles = async () => {
+    postMediaFiles?.shift();
+    const uploadedFiles: any[] = [];
+    
     const promises = postMediaFiles.map(async (file) => {
-      const fileType = getFileType(file.name)
-      const response = await getPresignedUrl(file.name, fileType, session?.jwt ?? "")
-      await uploadImageToS3(response, file)
-    })
-    await Promise.all(promises)
-    console.log("Done!")
+      const fileType = getFileType(file.name);
+      const response = await getPresignedUrl(file.name, fileType, session?.jwt ?? "");
+      await uploadImageToS3(response, file);
+      uploadedFiles.push(file);
+    });
+  
+    await Promise.all(promises);
+    console.log("All media files uploaded successfully!");
+  
+    return uploadedFiles;
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -102,67 +113,64 @@ const SinglePost = ({ params }: SinglePostProps) => {
 
     formValues.categories = JSON.parse(formValues.categories as string)
     formValues.continents = []
-    formValues.media = []
+    formValues.media = post.media
     if (postStatus) {
       formValues.status = postStatus
     }
-
-    // getPresignedUrl(formValues.coverImage.name, getFileType(formValues.coverImage.name), session?.jwt ?? "").then(data => {
-    //   uploadImageToS3(data, formValues.coverImage).then((response: any) => {
-    //     console.log({
-    //       name: formValues.coverImage.name,
-    //       url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverImage.name,
-    //       type: getFileType(formValues.coverImage.name),
-    //       isCover: getFileType(formValues.coverImage.name) === "IMAGE"
-    //     })
-    //   })
-    // })
-
-    // getPresignedUrl(formValues.coverVideo.name, getFileType(formValues.coverVideo.name), session?.jwt ?? "").then(data => {
-    //   uploadImageToS3(data, formValues.coverVideo).then((response: any) => {
-    //     console.log({
-    //       name: formValues.coverVideo.name,
-    //       url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverVideo.name,
-    //       type: getFileType(formValues.coverVideo.name),
-    //       isCover: getFileType(formValues.coverVideo.name) === "IMAGE"
-    //     })
-    //   })
-    // })
-
-    await uploadMediaFiles().then(() => {
-      console.log('files', postMediaFiles);
     
+    await uploadMediaFiles().then(async (editorFiles) => {
       console.log('formValues', formValues);
-      // console.log('content', formValues.content);
-      // mutateUpdatePost(formValues)
+
+      editorFiles.map((file) => {
+        formValues.media.push({
+          name: file.name,
+          url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + file.name,
+          type: getFileType(file.name),
+          isCover: false
+        })
+      })
+      
+      if(formValues.coverImage && formValues.coverImage.size > 0) {
+        const data = await getPresignedUrl(formValues.coverImage.name, getFileType(formValues.coverImage.name), session?.jwt ?? "")
+        const response = await uploadImageToS3(data, formValues.coverImage)
+        if(response.status === 200) {
+          formValues.media.push({
+            name: formValues.coverImage.name,
+            url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverImage.name,
+            type: getFileType(formValues.coverImage.name),
+            isCover: true
+          })
+        }
+      }
+      
+      if(formValues.coverVideo && formValues.coverVideo.size > 0) {
+        const data = await getPresignedUrl(formValues.coverVideo.name, getFileType(formValues.coverVideo.name), session?.jwt ?? "")
+        const response = await uploadImageToS3(data, formValues.coverVideo)
+        if(response.status === 200) {
+          formValues.media.push({
+            name: formValues.coverVideo.name,
+            url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverVideo.name,
+            type: getFileType(formValues.coverVideo.name),
+            isVideo: true
+          })
+        }
+      }
+
+      if(formValues.audioPodcast && formValues.audioPodcast.size > 0) {
+        const data = await getPresignedUrl(formValues.audioPodcast.name, getFileType(formValues.audioPodcast.name), session?.jwt ?? "")
+        const response = await uploadImageToS3(data, formValues.audioPodcast)
+        if(response.status === 200) {
+          formValues.media.push({
+            name: formValues.audioPodcast.name,
+            url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.audioPodcast.name,
+            type: getFileType(formValues.audioPodcast.name),
+            isPodcast: true
+          })
+        }
+      }
+      console.log('formValues', formValues);
+      mutateUpdatePost(formValues)
     })
-
-    // Object.entries(formValues).map((formValue: [string, any], key: number) => {
-    //   if(formValue && typeof formValue === "object" && ["coverImage", "videoCover", "audioPodcast"].includes(formValue[0])) {
-    //     getPresignedUrl(formValue[1].name, "IMAGE", session?.jwt).then(data => {
-    //       uploadImageToS3(data, formValue[1]).then((response: any) => {
-    //         if(response.ok) {
-    //           formValues.media[key] = {
-    //             name: formValue[1].name,
-    //             url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValue[1].name,
-    //             type: getFileType(formValue[1].name),
-    //             isCover: formValue[0] === "coverImage" ? true : false
-    //           }
-    //           delete formValues.coverImage
-    //           delete formValues.videoCover
-    //           delete formValues.audioPodcast
-
-    //           console.log('formValues', formValues);
-
-    //           // Update the post
-    //           mutateUpdatePost(formValues)
-    //         }
-    //       })
-    //     })
-    //   }
-    // })
-
-    // mutateUpdatePost(formValues)
   }
 
   const fetchData = async () => {
@@ -196,7 +204,6 @@ const SinglePost = ({ params }: SinglePostProps) => {
   if (isError) return <p>Error :</p>;
   if (post) {
     const coverImage = post?.media.find((media: any) => media?.isCover && media.url)
-    
     const videoMedia = post?.media.find((media: { type: string; }) => media.type === "VIDEO")
 
     return (

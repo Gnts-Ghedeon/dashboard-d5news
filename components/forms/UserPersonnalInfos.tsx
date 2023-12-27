@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import axios from '@/lib/axios'
 import { generatePass } from '@/utils/utilities'
+import { toast } from 'react-toastify'
 
 type User = {
     firstname: string;
@@ -51,8 +52,10 @@ const UserPersonnalInfos = ({ user, session, action, isAdmin }: UserPersonnalInf
                 }
             )
             console.log('response', response)
+            toast.success("Modifications enregistrées avec succès!")
         } catch (error) {
-            console.error('err', error)
+            console.log('error', error)
+            toast.error("Une erreur s'est produite. Veuillez reessayer!")
         }
     }
     return (

@@ -7,8 +7,8 @@ import 'quill/dist/quill.snow.css';
 
 function base64ToBlob(base64String: string) {
   const parts = base64String.split(';base64,');
-  const type = parts[0].split('/')[1];
-  const bytes = window.atob(parts[1]);
+  const type = parts[0]?.split('/')[1];
+  const bytes = window?.atob(parts[1]);
   const byteArrays = new Uint8Array(bytes.length);
   for (let i = 0; i < bytes.length; i++) {
     byteArrays[i] = bytes.charCodeAt(i);
@@ -58,88 +58,54 @@ const QuillEditorComponent = ({ post, addMediaToPostMediaFiles }: { post: Post |
   useEffect(() => {
     if (quill) {
       quill.clipboard.dangerouslyPasteHTML(post?.content || "")
-      quill.on('text-change', async (delta, oldContents) => {
+      quill.on('text-change', async (_, oldContents) => {
 
-        let content = quill.root.innerHTML
-        const newImages = delta.ops?.filter((op) => op.insert && op.insert.image)
+        const delta = quill.getContents();
+        const images = delta?.ops?.filter((op) => op.insert && op.insert.image)
           .map((op) => op.insert.image)
 
-        // change image files urls to blobs
-        const newFiles = await Promise.all((newImages ?? []).map(async (image) => {
-          const mediaType = image?.split(';')[0];
+        let imageElements: any[] = []
+        let extensions: any[] = []
+
+        images?.forEach((image, index) => {
+          const mediaType = images[index]?.split(';')[0];
           const extension = mediaType?.split('/')[1];
-          const blob = base64ToBlob(image);
-          const result = await extractBlobAndCreateFile(createImageElement(blob), extension);
-          if (result !== null) {
-            const { file } = result;
-            return file;
-          } else {
-            // handle the case when extractBlobAndCreateFile returns null
+          extensions.push(extension)
+
+          const selection = quill.getSelection();
+          if (selection) {
+            const blob = base64ToBlob(image);
+            const data = createImageElement(blob);
+            imageElements[index] = data;
           }
-        }))
-        
-        console.log('newFiles', newFiles);
-        
-        newFiles.forEach((file, index) => {
-          const base64Image = newImages[index];
-          console.log("base64Image " + index, base64Image);
-          
-          content = content.replace(base64Image, process.env.NEXT_PUBLIC_CLOUD_URL + "/" + file?.name)
         });
-        
-        console.log('content', content);
-        
 
-        // let imageElements: any[] = []
-        // let extensions: any[] = []
+        let files: File[] = [];
 
-        // newImages?.forEach((image, index) => {
-        //   const mediaType = newImages[index]?.split(';')[0];
-        //   const extension = mediaType?.split('/')[1];
-        //   extensions.push(extension)
-
-        //   const selection = quill.getSelection();
-        //   if (selection) {
-        //     const blob = base64ToBlob(image);
-        //     const data = createImageElement(blob);
-        //     imageElements[index] = data;
-        //   }
-        // });
-
-        // let files: File[] = [];
-
-        // if (imageElements.length > 0) {
-        //   let content = quill.root.innerHTML;
-        //   let contentSegments = content.split('<img');
-        
-        //   for (let index = 0; index < imageElements.length; index++) {
-        //     console.log("Current file: ", imageElements[index]);
-        //     console.log("Current extension: ", extensions[index]);
-        
-        //     const imageElement = imageElements[index];
-        //     const res = await extractBlobAndCreateFile(imageElement, extensions[index]);
-        
-        //     if (res?.file) {
-        //       addMediaToPostMediaFiles(res.file);
-        
-        //       // Replace the data URL in the current segment
-        //       const imageUrl = `${process.env.NEXT_PUBLIC_CLOUD_URL}/${res.filename}`;
-        //       contentSegments[index + 1] = contentSegments[index + 1].replace(/src="data:([^"]+)"/, `src="${imageUrl}"`);
-        //     }
-        //   }
-        
-        //   // Reconstruct the content
-        //   content = contentSegments.join('<img');
-        //   setContentValue(content);
-        // }
+        if (imageElements.length > 0) {
+          let content = quill.root.innerHTML;
+          let contentSegments = content.split('<img');
+          console.log('contentSegments', contentSegments);
+          
+          for (let index = 0; index < imageElements.length; index++) {
+            console.log("Current file: ", imageElements[index])
+            console.log("Current extension: ", extensions[index])
+            const imageElement = imageElements[index];
+            const res = await extractBlobAndCreateFile(imageElement, extensions[index]);
+            if (res?.file) {
+              addMediaToPostMediaFiles(res.file)
+              // Replace the data URL in the current segment
+              contentSegments[index + 1] = contentSegments[index + 1].replace(/src="data:([^"]+)"/, `src="${process.env.NEXT_PUBLIC_CLOUD_URL}/${res.filename}"`);
+            }
+          }
+          // Reconstruct the content
+          content = contentSegments.join('<img');
+          setContentValue(content)
+        }
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quill, Quill, post]);
-
-  useEffect(() => {
-    console.log('contentValue', contentValue)
-  }, [contentValue])
 
   return (
     <>

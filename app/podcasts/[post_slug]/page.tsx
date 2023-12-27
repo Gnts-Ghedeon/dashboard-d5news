@@ -5,18 +5,18 @@ import ArticleCover from "@/components/ArticleCover"
 import PostCategories from "@/components/PostCategories"
 import PostTags from "@/components/PostTags"
 import MetaData from "@/components/MetaData"
-import PodcastAudioFile from "@/components/PodcastAudioFile"
 import PostDetails from "@/components/forms/PostDetails"
 import { useState } from 'react'
 import { useRouter } from "next/navigation"
 
-import { getFileType } from '@/utils/utilities'
-import { uploadImageToS3, getPresignedUrl } from '@/utils/uploadMedia'
-
-import { useMutation, useQueryClient, UseQueryResult } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import { useRequestProcessor } from '@/lib/requestProcessor'
 import axios from '@/lib/axios'
 import { useSession } from 'next-auth/react'
+import { toast } from 'react-toastify'
+import { getPresignedUrl, uploadImageToS3 } from "@/utils/uploadMedia";
+import { getFileType } from "@/utils/utilities";
+import PodcastAudioFile from "@/components/PodcastAudioFile";
 
 type SinglePodcastProps = {
   params: any
@@ -26,8 +26,16 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
   const { data: session } = useSession()
   const queryClient = useQueryClient()
   const router = useRouter()
-  const [postMedia, setPostMedia] = useState<any[]>([])
+  const [postMediaFiles, setPostMediaFiles] = useState<File[]>([])
   const [postStatus, setPostStatus] = useState<string | null>(null)
+
+  const addMediaToPostMediaFiles = (file: File) => {    
+    setPostMediaFiles((prev) => [...prev, file])
+  }
+  
+  const removeMediaFromPostMediaFiles = (file: File) => {
+    setPostMediaFiles(postMediaFiles.filter((mediaFile) => mediaFile !== file))
+  }
 
   // delete post
   const deletePost = async (post_id: string) => {
@@ -45,8 +53,12 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
   const { mutate: handleDeletePost } = useMutation(deletePost, {
     onSuccess: () => {
       queryClient.invalidateQueries('post')
+      toast.success("Post supprimé avec succès!")
       return router.push('/posts')
     },
+    onError: () => {
+      toast.error("Oops, une erreur s'est produite. Veuillez réessayer!")
+    }
   })
 
   const handleDelete = (post_id: string) => {
@@ -61,17 +73,40 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
         Authorization: `Bearer ${session?.jwt}`,
       },
     })
+    if (response.status === 200) {
+      toast.success("Modifications enregistrées avec succès!")
+    }
+    else {
+      toast.error("Oops, une erreur s'est produite. Veuillez réessayer!")
+    }
     return response.data
   }
 
   const { mutate: mutateUpdatePost } = useMutation(updatePost, {
     onSuccess: (data) => {
       queryClient.invalidateQueries('post')
-      return router.push("/posts/" + data.post.slug)
+      return router.push("/podcasts/" + data.post.slug)
     },
   })
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const uploadMediaFiles = async () => {
+    postMediaFiles?.shift();
+    const uploadedFiles: any[] = [];
+    
+    const promises = postMediaFiles.map(async (file) => {
+      const fileType = getFileType(file.name);
+      const response = await getPresignedUrl(file.name, fileType, session?.jwt ?? "");
+      await uploadImageToS3(response, file);
+      uploadedFiles.push(file);
+    });
+  
+    await Promise.all(promises);
+    console.log("All media files uploaded successfully!");
+  
+    return uploadedFiles;
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formElement = e.target as HTMLFormElement
     const formData = new FormData(formElement)
@@ -79,42 +114,65 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
 
     formValues.categories = JSON.parse(formValues.categories as string)
     formValues.continents = []
-    formValues.media = []
+    formValues.media = post.media
     if (postStatus) {
       formValues.status = postStatus
     }
+    
+    await uploadMediaFiles().then(async (editorFiles) => {
+      console.log('formValues', formValues);
 
-    delete formValues.cover
-    delete formValues.audioPodcast
+      editorFiles.map((file) => {
+        formValues.media.push({
+          name: file.name,
+          url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + file.name,
+          type: getFileType(file.name),
+          isCover: false
+        })
+      })
+      
+      if(formValues.coverImage && formValues.coverImage.size > 0) {
+        const data = await getPresignedUrl(formValues.coverImage.name, getFileType(formValues.coverImage.name), session?.jwt ?? "")
+        const response = await uploadImageToS3(data, formValues.coverImage)
+        if(response.status === 200) {
+          formValues.media.push({
+            name: formValues.coverImage.name,
+            url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverImage.name,
+            type: getFileType(formValues.coverImage.name),
+            isCover: true
+          })
+        }
+      }
+      
+      if(formValues.coverVideo && formValues.coverVideo.size > 0) {
+        const data = await getPresignedUrl(formValues.coverVideo.name, getFileType(formValues.coverVideo.name), session?.jwt ?? "")
+        const response = await uploadImageToS3(data, formValues.coverVideo)
+        if(response.status === 200) {
+          formValues.media.push({
+            name: formValues.coverVideo.name,
+            url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverVideo.name,
+            type: getFileType(formValues.coverVideo.name),
+            isVideo: true
+          })
+        }
+      }
 
-    // Object.entries(formValues).map((formValue: [string, any], key: number) => {
-    //   if(formValue && typeof formValue === "object" && ["coverImage", "videoCover", "audioPodcast"].includes(formValue[0])) {
-    //     getPresignedUrl(formValue[1].name, "IMAGE", session?.jwt).then(data => {
-    //       uploadImageToS3(data, formValue[1]).then((response: any) => {
-    //         if(response.ok) {
-    //           formValues.media[key] = {
-    //             name: formValue[1].name,
-    //             url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValue[1].name,
-    //             type: getFileType(formValue[1].name),
-    //             isCover: formValue[0] === "coverImage" ? true : false
-    //           }
-    //           delete formValues.coverImage
-    //           delete formValues.videoCover
-    //           delete formValues.audioPodcast
-
-    //           console.log('formValues', formValues);
-
-    //           // Update the post
-    //           mutateUpdatePost(formValues)
-    //         }
-    //       })
-    //     })
-    //   }
-    // })
-
-    mutateUpdatePost(formValues)
+      if(formValues.audioPodcast && formValues.audioPodcast.size > 0) {
+        const data = await getPresignedUrl(formValues.audioPodcast.name, getFileType(formValues.audioPodcast.name), session?.jwt ?? "")
+        const response = await uploadImageToS3(data, formValues.audioPodcast)
+        if(response.status === 200) {
+          formValues.media.push({
+            name: formValues.audioPodcast.name,
+            url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.audioPodcast.name,
+            type: getFileType(formValues.audioPodcast.name),
+            isPodcast: true
+          })
+        }
+      }
+      console.log('formValues', formValues);
+      // mutateUpdatePost(formValues)
+    })
   }
-  // 
 
   const fetchData = async () => {
     try {
@@ -146,8 +204,10 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error :</p>;
   if (post) {
-    const cover = post.media.find((media: { isCover: boolean; }) => media.isCover === true)
-    const audio = post.media.find((media: { type: string; }) => media.type === "AUDIO")
+    const coverImage = post?.media.find((media: any) => media?.isCover && media.url)
+    const postcastMedia = post?.media.find((media: any) => media?.isPodcast && media.url)
+    console.log('post?.media', post?.media);
+    
     return (
       <>
         <Breadcrumb pageName="Modifier le podcast" />
@@ -155,9 +215,10 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
         <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
           <div className="col-span-12 lg:col-span-9">
             <div className="overflow-hidden rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
-              <PostDetails
+            <PostDetails
                 post={post}
-                setPostMedia={setPostMedia}
+                addMediaToPostMediaFiles={addMediaToPostMediaFiles}
+                removeMediaFromPostMediaFiles={removeMediaFromPostMediaFiles}
               />
             </div>
             <MetaData
@@ -210,15 +271,16 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
                 </h2>
               </div>
               <div className="p-6.5">
-                <ArticleCover
+              <ArticleCover
                   file={{
-                    filename: cover?.name ?? "",
-                    filetype: cover?.type ?? "",
-                    url: cover?.url ?? "",
+                    filename: coverImage?.name ?? "",
+                    filetype: coverImage?.type ?? "",
+                    url: coverImage?.url ?? "",
                     relatedPost: post.slug,
                     postId: post.id
                   }}
-                  accept=".jpg,.jpeg,.png,.webp," name="coverImage"
+                  accept=".jpg,.jpeg,.png,.webp,"
+                  name="coverImage"
                 />
               </div>
             </div>
@@ -231,9 +293,9 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
               <div className="p-6.5">
                 <PodcastAudioFile
                   file={{
-                    filename: audio?.name ?? "",
-                    filetype: audio?.type ?? "",
-                    url: audio?.url ?? "",
+                    filename: postcastMedia?.name ?? "",
+                    filetype: postcastMedia?.type ?? "",
+                    url: postcastMedia?.url ?? "",
                     relatedPost: post.slug,
                     postId: post.id
                   }}
