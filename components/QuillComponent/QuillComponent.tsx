@@ -4,6 +4,7 @@ import { useQuill } from 'react-quilljs';
 import BlotFormatter from 'quill-blot-formatter';
 import { v4 as uuidv4 } from 'uuid';
 import 'quill/dist/quill.snow.css';
+import { log } from 'console';
 
 function base64ToBlob(base64String: string) {
   const parts = base64String.split(';base64,');
@@ -60,7 +61,11 @@ const QuillEditorComponent = ({ post, addMediaToPostMediaFiles }: { post: Post |
       quill.clipboard.dangerouslyPasteHTML(post?.content || "")
       quill.on('text-change', async (_, oldContents) => {
 
-        const delta = quill.getContents();
+        let content = quill.root.innerHTML
+        console.log('content', content);
+        
+        setContentValue(content)
+        const delta = quill.getContents()
         const images = delta?.ops?.filter((op) => op.insert && op.insert.image)
           .map((op) => op.insert.image)
 

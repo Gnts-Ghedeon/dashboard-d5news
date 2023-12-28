@@ -45,7 +45,7 @@ const AddPost = () => {
 
     console.log('before', formValues);
 
-    formValues.categories = JSON.parse(formValues.categories as string)
+    formValues.categories = []
     formValues.continents = []
 
     console.log('after', formValues);
@@ -59,12 +59,11 @@ const AddPost = () => {
       <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
         <div className="col-span-12 lg:col-span-9">
           <div className="overflow-hidden rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
-            {/* <PostDetails 
-                  post={{
-                    title: "",
-                    content: ""
-                  }}
-                /> */}
+              <PostDetails
+                post={null}
+                addMediaToPostMediaFiles={() => {}}
+                removeMediaFromPostMediaFiles={() => {}}
+              />
           </div>
           <MetaData metas={{
             metaTitle: "",
