@@ -53,7 +53,7 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
   const { mutate: handleDeletePost } = useMutation(deletePost, {
     onSuccess: () => {
       queryClient.invalidateQueries('post')
-      toast.success("Post supprimé avec succès!")
+      toast.success("Podcast supprimé avec succès!")
       return router.push('/posts')
     },
     onError: () => {
@@ -143,19 +143,6 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
           })
         }
       }
-      
-      if(formValues.coverVideo && formValues.coverVideo.size > 0) {
-        const data = await getPresignedUrl(formValues.coverVideo.name, getFileType(formValues.coverVideo.name), session?.jwt ?? "")
-        const response = await uploadImageToS3(data, formValues.coverVideo)
-        if(response.status === 200) {
-          formValues.media.push({
-            name: formValues.coverVideo.name,
-            url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverVideo.name,
-            type: getFileType(formValues.coverVideo.name),
-            isVideo: true
-          })
-        }
-      }
 
       if(formValues.audioPodcast && formValues.audioPodcast.size > 0) {
         const data = await getPresignedUrl(formValues.audioPodcast.name, getFileType(formValues.audioPodcast.name), session?.jwt ?? "")
@@ -170,7 +157,7 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
         }
       }
       console.log('formValues', formValues);
-      // mutateUpdatePost(formValues)
+      mutateUpdatePost(formValues)
     })
   }
 

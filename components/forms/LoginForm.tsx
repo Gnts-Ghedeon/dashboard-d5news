@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from "next/navigation"
 import axios from '@/lib/axios'
+import { toast } from 'react-toastify'
 
 const LoginForm = ({ searchParams }: { searchParams: any }) => {
     const [passwordValue, setPasswordValue] = useState<string>("")
     const [emailValue, setEmailValue] = useState<string>("")
+    const [isError, setIsError] = useState<boolean>(false)
 
     const router = useRouter()
 
@@ -37,15 +39,24 @@ const LoginForm = ({ searchParams }: { searchParams: any }) => {
         }
         
         if(result && result.ok) {
+            toast.success('Connexion reussie')
             console.log('logged in')
             return router.push(searchParams.callbackUrl || "/")
         } else {
+            setIsError(true)
             console.log('invalid credentials')
         }
     } 
     return (
         <form method="POST" onSubmit={handleSubmit}>
-            <div className="mb-4">
+            {
+                isError && (
+                    <div className="">
+                        <p className="text-danger text-center">{"Nous n'avons pas pu vous connecter. Vérifiez vos identifiants de connexion puis réessayez"}</p>
+                    </div>
+                )
+            }
+            <div className="my-4">
                 <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
                 </label>

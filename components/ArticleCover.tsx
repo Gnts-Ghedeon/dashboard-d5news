@@ -29,9 +29,8 @@ const ArticleCover = ({ file, accept, name }: ArticleCoverProps) => {
     const { data: session } = useSession()
 
     useEffect(() => {
-        setPreviewURL(file.url)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+        setPreviewURL(file?.url)
+    }, [file])
 
     const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files

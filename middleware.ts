@@ -11,5 +11,7 @@ export const config = {
         '/comments/:path*',
         '/settings/:path*',
         '/elements/:path*',
+        '/categories/:path*',
+        '/ads/:path*',
     ]
 };

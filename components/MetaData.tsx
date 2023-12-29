@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type MetaDataProps = {
     metas: {
@@ -12,10 +12,15 @@ type MetaDataProps = {
 
 const MetaData = ({ metas }: MetaDataProps) => {
     const [showContent, setShowContent] = useState<boolean>(true)
-    const [metaDescriptionValue, setMetaDescriptionValue] = useState<string>(metas?.metaDescription || "")
-    const [metaTitleValue, setMetaTitleValue] = useState<string>(metas?.metaTitle || "")
-    const [metaKeywordsValue, setMetaKeywordsValue] = useState<string>(metas?.metaKeywords || "")
+    const [metaDescriptionValue, setMetaDescriptionValue] = useState<string>("")
+    const [metaTitleValue, setMetaTitleValue] = useState<string>("")
+    const [metaKeywordsValue, setMetaKeywordsValue] = useState<string>("")
 
+    useEffect(() => {
+        setMetaDescriptionValue(metas?.metaDescription || "")
+        setMetaTitleValue(metas?.metaTitle || "")
+        setMetaKeywordsValue(metas?.metaKeywords || "")
+    }, [metas])
     return (
         <div className="overflow-x-auto rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark mt-8 mb-4">
             <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark flex justify-between items-center">

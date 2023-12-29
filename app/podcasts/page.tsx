@@ -94,7 +94,7 @@ const Podcasts = () => {
     const fetchData = async () => {
         try {
             const response = await axios.get(
-                '/posts', 
+                '/posts/podcasts', 
                 {
                     headers: {
                         Authorization: `Bearer ${session?.jwt}`
@@ -107,7 +107,7 @@ const Podcasts = () => {
         }
     }
 
-    const { query, getCategories } = useRequestProcessor()
+    const { query } = useRequestProcessor()
 
     const { data: podcasts, isLoading, isError }: UseQueryResult<any | null> = query(
         'podcasts',
@@ -119,7 +119,7 @@ const Podcasts = () => {
             ...post,
             head: {
                 title: post.title,
-                coverUrl: post.media[0]?.url || `/images/cover/cover-01.png`,
+                coverUrl: post?.media.find((media: any) => media?.isCover && media.url)?.url || `/images/cover/cover-01.png`,
                 url: `podcasts/${post.slug}`
             },
             index: i + 1,

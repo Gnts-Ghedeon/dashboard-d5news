@@ -8,7 +8,7 @@ import { useRequestProcessor } from '@/lib/requestProcessor'
 import axios from '@/lib/axios'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { UseQueryResult } from 'react-query'
+import { UseQueryResult, useQueryClient } from 'react-query'
 
 type TableColumn = {
     header: string
@@ -90,6 +90,7 @@ let filters: Filter[] = [
 
 const Posts = () => {
     const { data: session } = useSession()
+    const queryClient = useQueryClient()
 
     const fetchData = async () => {
         try {
@@ -99,6 +100,9 @@ const Posts = () => {
                 },
             });
 
+            if(response.data.statusCode === 200) {
+                queryClient.invalidateQueries('post')
+            }
             return response.data as {
                 statusCode: number;
                 posts: Post[];
@@ -110,7 +114,7 @@ const Posts = () => {
         }
     };
 
-    const { query, getCategories } = useRequestProcessor();
+    const { query } = useRequestProcessor();
 
     const { data, isLoading, isError } = query(
         'posts',
@@ -125,7 +129,7 @@ const Posts = () => {
             ...post,
             head: {
                 title: post.title,
-                coverUrl: post.media[0]?.url || `/images/cover/cover-01.png`,
+                coverUrl: post?.media.find((media: any) => media?.isCover && media.url)?.url || `/images/cover/cover-01.png`,
                 url: `posts/${post.slug}`
             },
             index: i + 1,

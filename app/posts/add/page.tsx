@@ -8,12 +8,8 @@ import { useRouter } from "next/navigation"
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import PostCategories from "@/components/PostCategories"
 import PostTags from "@/components/PostTags"
-import MediasUpload from "@/components/MediasUpload"
 import MetaData from "@/components/MetaData"
 import PostDetails from "@/components/forms/PostDetails"
-import ArticleCover from "@/components/ArticleCover"
-import ArticleVideoCover from "@/components/ArticleVideoCover"
-import PodcastAudioFile from "@/components/PodcastAudioFile"
 
 const AddPost = () => {
   const router = useRouter()

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import QuillComponent from '../QuillComponent/QuillComponent';
 
 type PostDetailsProps = {
@@ -15,8 +15,11 @@ type SelectedMedia = {
 }
 
 const PostDetails = ({ post, addMediaToPostMediaFiles, removeMediaFromPostMediaFiles }: PostDetailsProps) => {
-    const [titleValue, setTitleValue] = useState<string>(post?.title ?? "")
+    const [titleValue, setTitleValue] = useState<string>("")
 
+    useEffect(() => {
+        setTitleValue(post?.title || "")
+    }, [post])
     return (
         <div className="flex flex-col gap-5.5 p-6.5">
             <div>

@@ -155,19 +155,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
           })
         }
       }
-
-      if(formValues.audioPodcast && formValues.audioPodcast.size > 0) {
-        const data = await getPresignedUrl(formValues.audioPodcast.name, getFileType(formValues.audioPodcast.name), session?.jwt ?? "")
-        const response = await uploadImageToS3(data, formValues.audioPodcast)
-        if(response.status === 200) {
-          formValues.media.push({
-            name: formValues.audioPodcast.name,
-            url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.audioPodcast.name,
-            type: getFileType(formValues.audioPodcast.name),
-            isPodcast: true
-          })
-        }
-      }
+      
       console.log('formValues', formValues);
       mutateUpdatePost(formValues)
     })
