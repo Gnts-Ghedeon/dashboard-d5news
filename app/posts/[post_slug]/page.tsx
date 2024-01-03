@@ -25,6 +25,8 @@ const SinglePost = ({ params }: SinglePostProps) => {
   const { data: session } = useSession()
   const queryClient = useQueryClient()
   const router = useRouter()
+
+  const [loading, setLoading] = useState<boolean>(false)
   const [postMediaFiles, setPostMediaFiles] = useState<File[]>([])
   const [postStatus, setPostStatus] = useState<string | null>(null)
 
@@ -73,6 +75,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
       },
     })
     if (response.status === 200) {
+      setLoading(false)
       toast.success("Modifications enregistrées avec succès!")
     }
     else {
@@ -107,6 +110,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setLoading(true)
     const formElement = e.target as HTMLFormElement
     const formData = new FormData(formElement)
     const formValues: any = Object.fromEntries(formData)
@@ -219,9 +223,9 @@ const SinglePost = ({ params }: SinglePostProps) => {
             <div className="w-full flex flex-col gap-4">
               {
                 post.status !== "PENDING" && (
-                  <button className="inline-flex items-center justify-center gap-2.5 rounded-lg bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+                  <button className={(loading ? "opacity-50 cursor-wait " : "") + "inline-flex items-center justify-center gap-2.5 rounded-lg bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"}
                     type="submit"
-                    onClick={() => setPostStatus("PENDING")}
+                    onClick={() => !loading && setPostStatus("PENDING")}
                   >
                     {"Publier l'article"}
                   </button>
@@ -229,23 +233,23 @@ const SinglePost = ({ params }: SinglePostProps) => {
               }
               {
                 post.status !== "DRAFT" && (
-                  <button className="inline-flex items-center justify-center gap-2.5 rounded-lg bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+                  <button className={(loading ? "opacity-50 cursor-wait " : "") + "inline-flex items-center justify-center gap-2.5 rounded-lg bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"}
                     type="submit"
-                    onClick={() => setPostStatus("DRAFT")}
+                    onClick={() => !loading && setPostStatus("DRAFT")}
                   >
                     {"Mettre en brouillon"}
                   </button>
                 )
               }
-              <button className="inline-flex items-center justify-center gap-2.5 rounded-lg border border-primary text-primary py-4 px-6 text-center font-medium hover:bg-opacity-90"
+              <button className={(loading ? "opacity-50 cursor-wait " : "") + "inline-flex items-center justify-center gap-2.5 rounded-lg border border-primary text-primary py-4 px-6 text-center font-medium hover:bg-opacity-90"}
                 type="submit"
-                onClick={() => setPostStatus(post.status)}
+                onClick={() => !loading && setPostStatus(post.status)}
               >
                 {"Enregistrer les modifications"}
               </button>
-              <button className="inline-flex items-center justify-center gap-2.5 rounded-lg bg-danger py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+              <button className={(loading ? "opacity-50 cursor-wait " : "") + "inline-flex items-center justify-center gap-2.5 rounded-lg bg-danger py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"}
                 type="button"
-                onClick={() => handleDelete(post.id)}
+                onClick={() => !loading && handleDelete(post.id)}
               >
                 {"Supprimer l'article"}
               </button>

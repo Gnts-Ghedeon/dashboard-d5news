@@ -24,12 +24,13 @@ const ArticleCover = ({ file, accept, name }: ArticleCoverProps) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [previewURL, setPreviewURL] = useState<string | null>(null)
-    const [type, setType] = useState<string>(getFileType(file.filename ?? "IMAGE"))
+    const [type, setType] = useState<string>("IMAGE")
 
     const { data: session } = useSession()
 
     useEffect(() => {
         setPreviewURL(file?.url)
+        setType(getFileType(file?.filename ?? "IMAGE"))
     }, [file])
 
     const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -49,47 +50,6 @@ const ArticleCover = ({ file, accept, name }: ArticleCoverProps) => {
         }
     }
 
-
-    const sendMedia = async (media: any) => {
-        const response = await axios.patch('/posts/updateCoverMedia/' + file.relatedPost,
-            { media: media, postId: file.postId },
-            {
-                headers: {
-                    Authorization: `Bearer ${session?.jwt}`,
-                },
-            }
-        )
-        if(response.status === 200) {
-            toast.success("Cover mis à jour avec success!")
-        }
-        return response.data
-    }
-
-    const handleSave = () => {
-        if (selectedFile) {
-            getPresignedUrl(selectedFile.name, getFileType(selectedFile.name), session?.jwt ?? "").then(data => {
-                uploadImageToS3(data, selectedFile).then((response: any) => {
-                    sendMedia({
-                        name: selectedFile.name,
-                        url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + selectedFile.name,
-                        type: getFileType(selectedFile.name),
-                        isCover: getFileType(selectedFile.name) === "IMAGE"
-                    })
-                })
-            })
-        }
-        else if (!previewURL && file.url !== "") {
-            sendMedia(null)
-        }
-        else {
-            sendMedia({
-                name: file.filename,
-                url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + file.filename,
-                type: getFileType(file.filename),
-                isCover: true
-            })
-        }
-    }
     return (
         <>
             <input

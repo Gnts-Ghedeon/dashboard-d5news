@@ -85,7 +85,7 @@ const TableRowActions = ({ row, entity }: TableRowActionsProps) => {
                             entity !== "comments" && (
                                 <>
                                 <Link
-                                    href={"/" + entity + "/" + row.id}
+                                    href={"/" + entity + "/" + row.slug}
                                     className="px-8 py-3 flex items-center justify-center bg-graydark hover:opacity-80 gap-x-1.5 text-primary"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5.5" viewBox="0 0 24 24">
