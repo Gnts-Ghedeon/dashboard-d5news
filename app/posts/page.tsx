@@ -125,7 +125,9 @@ const Posts = () => {
     const posts = data as Post[];
 
     if (posts) {
-        const postsWithHead = posts.map((post: any, i: number) => ({
+        const postsWithHead = posts
+        .sort((a: any, b: any) => (new Date(b.updatedAt) as any) - (new Date(a.updatedAt) as any))
+        .map((post: any, i: number) => ({
             ...post,
             head: {
                 title: post.title,

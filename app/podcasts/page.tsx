@@ -115,7 +115,9 @@ const Podcasts = () => {
         { enabled: true }
     )
     if(podcasts) {
-        const podcastsWithHead = podcasts.map((post: any, i: number) => ({
+        const podcastsWithHead = podcasts
+        .sort((a: any, b: any) => (new Date(b.updatedAt) as any) - (new Date(a.updatedAt) as any))
+        .map((post: any, i: number) => ({
             ...post,
             head: {
                 title: post.title,
