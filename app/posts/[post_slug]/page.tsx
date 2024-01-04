@@ -139,6 +139,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
         const data = await getPresignedUrl(formValues.coverImage.name, getFileType(formValues.coverImage.name), session?.jwt ?? "")
         const response = await uploadImageToS3(data, formValues.coverImage)
         if(response.status === 200) {
+          
           formValues.media.push({
             name: formValues.coverImage.name,
             url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverImage.name,
