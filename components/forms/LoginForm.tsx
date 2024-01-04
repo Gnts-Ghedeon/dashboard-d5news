@@ -10,6 +10,7 @@ const LoginForm = ({ searchParams }: { searchParams: any }) => {
     const [passwordValue, setPasswordValue] = useState<string>("")
     const [emailValue, setEmailValue] = useState<string>("")
     const [isError, setIsError] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const router = useRouter()
 
@@ -24,6 +25,7 @@ const LoginForm = ({ searchParams }: { searchParams: any }) => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        setIsLoading(true)
 
         const email = e.currentTarget.email.value
         const password = e.currentTarget.password.value
@@ -35,6 +37,7 @@ const LoginForm = ({ searchParams }: { searchParams: any }) => {
         })
 
         if(result) {
+            setIsLoading(false)
             console.log(result)
         }
         
@@ -132,7 +135,7 @@ const LoginForm = ({ searchParams }: { searchParams: any }) => {
                 <input
                 type="submit"
                 value="Se connecter"
-                className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
+                className={(isLoading ? " opacity-50 cursor-wait" : "") + " w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"}
                 />
             </div>
         </form>
