@@ -78,9 +78,6 @@ const SinglePost = ({ params }: SinglePostProps) => {
       setLoading(false)
       toast.success("Modifications enregistrées avec succès!")
     }
-    else {
-      toast.error("Oops, une erreur s'est produite. Veuillez réessayer!")
-    }
     return response.data
   }
 
@@ -89,6 +86,10 @@ const SinglePost = ({ params }: SinglePostProps) => {
       queryClient.invalidateQueries('post')
       return router.push("/posts/" + data.post.slug)
     },
+    onError: () => {
+      setLoading(false)
+      toast.error("Oops, une erreur s'est produite. Veuillez réessayer!")
+    }
   })
 
   const uploadMediaFiles = async () => {
