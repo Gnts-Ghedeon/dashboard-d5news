@@ -301,7 +301,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
               </div>
             </div>
             <PostCategories
-              cats={post.categories}
+              post={post}
             />
             <PostTags
               tags={post.tags}

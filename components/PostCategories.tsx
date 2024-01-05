@@ -3,37 +3,34 @@
 import { useState, useEffect } from 'react'
 import { useRequestProcessor } from '@/lib/requestProcessor'
 
-const PostCategories = ({ cats }: { cats: PostCategory[] }) => {
+const PostCategories = ({ post }: { post: any }) => {
     const [showContent, setShowContent] = useState<boolean>(false)
     const [categories, setCategories] = useState<PostCategory[]>([])
     const [categoriesIDs, setCategoriesIDs] = useState<string[]>([])
     const [allCategories, setAllCategories] = useState<PostCategory[]>([])
 
     useEffect(() => {
-        setCategories(cats)
-    }, [cats])
+        setCategories(post.categories || [])
+        setCategoriesIDs(post.categories?.map((cat: any) => cat.id) || [])
+    }, [post?.categories])
 
     const { getCategories } = useRequestProcessor()
+
     useEffect(() => {
         getCategories()
             .then((res) => {
                 setAllCategories(res?.categories)
             })
-        const initialCategoryIDs = cats.map(cat => cat.id)
-        setCategoriesIDs(initialCategoryIDs)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleRemoveCategory = (category: PostCategory) => {
-        const updatedCategories = categories.filter(existingCategory => existingCategory.id !== category.id)
-        setCategories(updatedCategories)
-        const updatedCategoriesIDs = categoriesIDs.filter(categoryID => categoryID !== category.id)
-        setCategoriesIDs(updatedCategoriesIDs)
+        setCategories(categories.filter(existingCategory => existingCategory.id !== category.id))
+        setCategoriesIDs(categoriesIDs.filter(categoryID => categoryID !== category.id))
     }
 
     const handleSelectCategory = (category: PostCategory) => {
         const isCategoryExist = categories.some(existingCategory => existingCategory.id === category.id)
-
+    
         if (!isCategoryExist) {
             setCategories([...categories, category])
             setCategoriesIDs([...categoriesIDs, category.id])
