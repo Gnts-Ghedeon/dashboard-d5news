@@ -23,15 +23,14 @@ type ArticleCoverProps = {
 const ArticleCover = ({ file, accept, name }: ArticleCoverProps) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
-    const [previewURL, setPreviewURL] = useState<string | null>(null)
+    const [previewURL, setPreviewURL] = useState<string | null>("")
     const [type, setType] = useState<string>("IMAGE")
-
-    const { data: session } = useSession()
 
     useEffect(() => {
         setPreviewURL(file?.url)
         setType(getFileType(file?.filename ?? "IMAGE"))
-    }, [file])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [file?.url])
 
     const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files

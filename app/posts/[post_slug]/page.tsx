@@ -124,7 +124,11 @@ const SinglePost = ({ params }: SinglePostProps) => {
     }
     
     await uploadMediaFiles().then(async (editorFiles) => {
-      console.log('formValues', formValues);
+      console.log('formValues', formValues)
+
+      // if (editorFiles.length > 1) {
+      //   formValues.media = formValues.media.filter((media: any) => media.isCover)
+      // }
 
       editorFiles.map((file) => {
         formValues.media.push({
@@ -139,7 +143,7 @@ const SinglePost = ({ params }: SinglePostProps) => {
         const data = await getPresignedUrl(formValues.coverImage.name, getFileType(formValues.coverImage.name), session?.jwt ?? "")
         const response = await uploadImageToS3(data, formValues.coverImage)
         if(response.status === 200) {
-          
+          formValues.media = formValues.media.filter((media: any) => !media.isCover)
           formValues.media.push({
             name: formValues.coverImage.name,
             url: process.env.NEXT_PUBLIC_CLOUD_URL + '/' + formValues.coverImage.name,

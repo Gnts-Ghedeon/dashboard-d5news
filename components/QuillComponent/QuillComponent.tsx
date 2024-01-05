@@ -4,7 +4,6 @@ import { useQuill } from 'react-quilljs';
 import BlotFormatter from 'quill-blot-formatter';
 import { v4 as uuidv4 } from 'uuid';
 import 'quill/dist/quill.snow.css';
-import { log } from 'console';
 
 function base64ToBlob(base64String: string) {
   const parts = base64String.split(';base64,');
@@ -47,7 +46,7 @@ async function extractBlobAndCreateFile(imageElement: HTMLImageElement, extensio
 
 
 const QuillEditorComponent = ({ post, addMediaToPostMediaFiles }: { post: Post | null, addMediaToPostMediaFiles: (file: File) => void; }) => {
-  const [contentValue, setContentValue] = useState<string>(post?.content || "")
+  const [contentValue, setContentValue] = useState<string>("")
   const { quill, quillRef, Quill } = useQuill({
     modules: { blotFormatter: {} }
   });
@@ -110,7 +109,11 @@ const QuillEditorComponent = ({ post, addMediaToPostMediaFiles }: { post: Post |
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quill, Quill, post]);
+  }, [quill, Quill, post?.content]);
+
+  useEffect(() => {
+    setContentValue(post?.content || "")
+  }, [post?.content])
 
   return (
     <>
