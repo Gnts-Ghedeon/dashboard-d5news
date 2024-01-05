@@ -21,6 +21,7 @@ const PostCategories = ({ post }: { post: any }) => {
             .then((res) => {
                 setAllCategories(res?.categories)
             })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleRemoveCategory = (category: PostCategory) => {
