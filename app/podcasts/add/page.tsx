@@ -56,8 +56,9 @@ const AddPodcast = () => {
         <div className="col-span-12 lg:col-span-9">
           <div className="overflow-hidden rounded-lg border border-stroke bg-white shadow-default  dark:border-strokedark dark:bg-boxdark">
             <PostDetails
-              post={null}
-              setPostMedia={() => { }}
+               post={null}
+               addMediaToPostMediaFiles={() => {}}
+               removeMediaFromPostMediaFiles={() => {}}
             />
           </div>
           <MetaData metas={{
@@ -130,7 +131,7 @@ const AddPodcast = () => {
             </div>
           </div>
           <PostCategories
-            cats={[]}
+            post={null}
           />
           <PostTags
             tags={{}}

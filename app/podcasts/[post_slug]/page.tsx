@@ -28,6 +28,7 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
   const router = useRouter()
   const [postMediaFiles, setPostMediaFiles] = useState<File[]>([])
   const [postStatus, setPostStatus] = useState<string | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
 
   const addMediaToPostMediaFiles = (file: File) => {    
     setPostMediaFiles((prev) => [...prev, file])
@@ -85,8 +86,12 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
   const { mutate: mutateUpdatePost } = useMutation(updatePost, {
     onSuccess: (data) => {
       queryClient.invalidateQueries('post')
+      setLoading(false)
       return router.push("/podcasts/" + data.post.slug)
     },
+    onError: () => {
+      setLoading(false)
+    }
   })
 
   const uploadMediaFiles = async () => {
@@ -107,6 +112,7 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    setLoading(true)
     e.preventDefault()
     const formElement = e.target as HTMLFormElement
     const formData = new FormData(formElement)
@@ -220,7 +226,7 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
             <div className="w-full flex flex-col gap-4">
               {
                 post.status !== "PENDING" && (
-                  <button className="inline-flex items-center justify-center gap-2.5 rounded-lg bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+                  <button className={(loading ? "opacity-50 cursor-wait " : "") + "inline-flex items-center justify-center gap-2.5 rounded-lg bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"}
                     type="submit"
                     onClick={() => setPostStatus("PENDING")}
                   >
@@ -230,7 +236,7 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
               }
               {
                 post.status !== "DRAFT" && (
-                  <button className="inline-flex items-center justify-center gap-2.5 rounded-lg bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+                  <button className={(loading ? "opacity-50 cursor-wait " : "") + "inline-flex items-center justify-center gap-2.5 rounded-lg bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"}
                     type="submit"
                     onClick={() => setPostStatus("DRAFT")}
                   >
@@ -238,13 +244,13 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
                   </button>
                 )
               }
-              <button className="inline-flex items-center justify-center gap-2.5 rounded-lg border border-primary text-primary py-4 px-6 text-center font-medium hover:bg-opacity-90"
+              <button className={(loading ? "opacity-50 cursor-wait " : "") + "inline-flex items-center justify-center gap-2.5 rounded-lg border border-primary text-primary py-4 px-6 text-center font-medium hover:bg-opacity-90"}
                 type="submit"
                 onClick={() => setPostStatus(post.status)}
               >
                 {"Enregistrer les modifications"}
               </button>
-              <button className="inline-flex items-center justify-center gap-2.5 rounded-lg bg-danger py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+              <button className={(loading ? "opacity-50 cursor-wait " : "") + "inline-flex items-center justify-center gap-2.5 rounded-lg bg-danger py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"}
                 type="button"
                 onClick={() => handleDelete(post.id)}
               >
@@ -290,7 +296,7 @@ const SinglePodcast = ({ params }: SinglePodcastProps) => {
               </div>
             </div>
             <PostCategories
-              cats={post.categories}
+              post={post}
             />
             <PostTags
               tags={post.tags}

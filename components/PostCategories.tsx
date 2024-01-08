@@ -10,8 +10,8 @@ const PostCategories = ({ post }: { post: any }) => {
     const [allCategories, setAllCategories] = useState<PostCategory[]>([])
 
     useEffect(() => {
-        setCategories(post.categories || [])
-        setCategoriesIDs(post.categories?.map((cat: any) => cat.id) || [])
+        setCategories(post?.categories || [])
+        setCategoriesIDs(post?.categories?.map((cat: any) => cat.id) || [])
     }, [post?.categories])
 
     const { getCategories } = useRequestProcessor()

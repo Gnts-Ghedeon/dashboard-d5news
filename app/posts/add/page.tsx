@@ -115,7 +115,7 @@ const AddPost = () => {
                 </div>
               </div> */}
           <PostCategories
-            cats={[]}
+            post={null}
           />
           <PostTags
             tags={{}}
